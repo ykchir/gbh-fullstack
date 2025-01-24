@@ -1,0 +1,81 @@
+# Node.js
+node_modules/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# macOS
+.DS_Store
+
+# Logs
+logs/
+*.log
+*.log.*
+debug.log
+
+# Dependency directories
+node_modules/
+dist/
+build/
+.cache/
+.vscode/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+
+# IDE/Editor specific
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Git
+.git/
+
+# Testing
+coverage/
+jest.cache/
+jest.config.js
+.nyc_output/
+
+# Next.js
+.next/
+out/
+.vercel/
+.cache/
+
+# TypeScript
+*.tsbuildinfo
+
+# Shared Config
+shared/config/*.js
+shared/config/*.ts
+
+# Others
+public/file.svg
+public/*.svg
+public/*.ico
+
+backend/dist/
+backend/coverage/
+backend/.env
+backend/.nestjs-cli
+/backend/tsconfig.build.tsbuildinfo
+
+frontend/.next/
+frontend/coverage/
+frontend/.env
+/frontend/out
+/frontend/.turbo
