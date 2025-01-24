@@ -1,0 +1,48 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - develop
+      - feature/*
+      - fix/*
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # 3. Install pnpm
+      - name: Install pnpm
+        run: |
+          npm install -g pnpm
+          pnpm --version
+          which pnpm
+
+      # 4. Install dependencies
+      - name: Install dependencies
+        run: |
+          pnpm install
+
+      # 5. Lint the code
+      - name: Run ESLint
+        run: |
+          pnpm lint
+
+      # 6. Run tests
+      - name: Run tests
+        run: |
+          pnpm test
