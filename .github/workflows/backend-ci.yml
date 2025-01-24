@@ -24,12 +24,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: pnpm # Activate caching for pnpm
 
       # 3. Install pnpm
       - name: Install pnpm
         run: |
           npm install -g pnpm
+          pnpm --version
+          which pnpm
 
       # 4. Install dependencies
       - name: Install dependencies
