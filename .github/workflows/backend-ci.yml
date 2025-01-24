@@ -24,18 +24,20 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: pnpm
 
-      # 3. Install dependencies
+      # 3. Install pnpm
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # 4. Install dependencies
       - name: Install dependencies
-        run: |
-          pnpm install
+        run: pnpm install
 
-      # 4. Lint the code
+      # 5. Lint the code
       - name: Run ESLint
-        run: |
-          pnpm lint
+        run: pnpm lint
 
-      # 5. Run tests
+      # 6. Run tests
       - name: Run tests
-        run: |
-          pnpm test
+        run: pnpm test
