@@ -16,7 +16,11 @@
     "build": "pnpm -r run build",
     "start": "pnpm -r run start",
     "dev": "pnpm -r run dev",
+    "lint:backend": "pnpm --filter=backend run lint",
+    "lint:frontend": "pnpm --filter=frontend run lint",
     "lint": "pnpm -r run lint",
+    "test:backend": "pnpm --filter=backend run test",
+    "test:frontend": "pnpm --filter=frontend run test",
     "test": "pnpm -r run test",
     "prepare": "husky install"
   },
