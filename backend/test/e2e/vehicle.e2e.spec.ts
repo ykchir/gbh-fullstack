@@ -7,11 +7,11 @@ describe('VehicleController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleRef.createNestApplication();
     await app.init();
   });
 
@@ -24,7 +24,7 @@ describe('VehicleController (e2e)', () => {
       .get('/vehicles')
       .expect(200)
       .expect((response) => {
-        expect(response.body).toHaveLength(3);
+        expect(response.body).toHaveLength(10);
         expect(response.body[0].manufacturer).toBe('Tesla');
       });
   });

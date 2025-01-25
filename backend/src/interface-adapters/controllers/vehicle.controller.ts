@@ -1,5 +1,6 @@
 import { Controller, Get } from "@nestjs/common";
 import { GetVehiclesUseCase } from "../../application/use-cases/get-vehicles.use-case";
+import { VehiclePresenter } from "../presenters/vehicle.presenter";
 
 @Controller("vehicles")
 export class VehicleController {
@@ -7,6 +8,7 @@ export class VehicleController {
 
   @Get()
   async getVehicles() {
-    return this.getVehiclesUseCase.execute();
+    const vehicles = await this.getVehiclesUseCase.execute();
+    return VehiclePresenter.toResponseList(vehicles);
   }
 }

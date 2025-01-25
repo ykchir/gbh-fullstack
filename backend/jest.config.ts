@@ -10,6 +10,9 @@ const config: Config = {
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: './coverage',
   testEnvironment: 'node',
+  moduleNameMapper: {
+    '^shared-types$': '<rootDir>/../shared/types',
+  },
 };
 
 export default config;
