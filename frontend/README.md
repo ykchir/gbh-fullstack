@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend - Vehicles Platform
 
-## Getting Started
+This is the frontend application for the Vehicles platform, built with **Next.js**. It provides a user interface to browse and filter vehicles using data from the backend service.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Features
+
+- **Dynamic Filtering:** Easily filter vehicles by manufacturer, type, year, and more.
+- **Pagination:** Navigate through large datasets with seamless pagination.
+- **Error Handling:** User-friendly error messages for API failures.
+- **Responsive Design:** Optimized for desktop and mobile devices.
+- **Modern Stack:** Built with Next.js, Tailwind CSS, and TypeScript.
+
+---
+
+## Prerequisites
+
+Ensure you have the following installed:
+
+- **Node.js** (>= 18.x)
+- **pnpm** (>= 8.x)
+
+---
+
+## Installation and Setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/ykchir/gbh-fullstack
+   cd gbh-fullstack/frontend
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Start the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+   The application will be accessible at `http://localhost:3000`.
+
+4. Build for production:
+
+   ```bash
+   pnpm build
+   ```
+
+5. Start the production server:
+
+   ```bash
+   pnpm start
+   ```
+
+---
+
+## Project Structure
+
+```plaintext
+src/
+├── app                  # Next.js app directory
+├── components           # Reusable UI components
+├── services             # API service integrations
+├── types                # TypeScript types and interfaces
+├── utils                # Utility functions (e.g., error handling)
+└── styles               # Global styles and Tailwind CSS configuration
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Development:**
+   ```bash
+   pnpm dev
+   ```
 
-## Learn More
+2. **Production Build:**
+   ```bash
+   pnpm build
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. **Start Production Server:**
+   ```bash
+   pnpm start
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Lint the code:**
+   ```bash
+   pnpm lint
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. **Format the code:**
+   ```bash
+   pnpm format
+   ```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Error Handling
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The application uses a centralized error handler for consistent error messaging. Errors from the backend are displayed as user-friendly messages in the UI.
+
+---
+
+## Contributing
+
+1. Create a new feature branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+2. Commit your changes:
+   ```bash
+   git commit -m "feat(your-feature-name): Add your message here"
+   ```
+3. Push the branch and create a pull request.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
