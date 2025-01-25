@@ -1,9 +1,8 @@
 "use client";
 
+import { GetVehiclesFilters } from "@/types/api/vehicles";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import FilterSelect from "./FilterSelect";
-import { GetVehiclesFilters } from "@/types/api/vehicles";
 
 interface FiltersPanelProps {
   manufacturers: string[];
@@ -38,26 +37,68 @@ export default function FiltersPanel({
 
   return (
     <div className="flex flex-col gap-4 p-4 border rounded">
-      <FilterSelect
-        label="Manufacturer"
-        options={manufacturers.map((m) => ({ label: m, value: m }))}
+      <select
+        onChange={(e) => handleChange("manufacturer", e.target.value)}
+        className="p-2 border rounded"
         value={filters.manufacturer || ""}
-        onChange={(value) => handleChange("manufacturer", String(value))}
-      />
+      >
+        <option value="">All Manufacturers</option>
+        {manufacturers.map((manufacturer) => (
+          <option key={manufacturer} value={manufacturer}>
+            {manufacturer}
+          </option>
+        ))}
+      </select>
 
-      <FilterSelect
-        label="Type"
-        options={types.map((t) => ({ label: t, value: t }))}
+      <select
+        onChange={(e) => handleChange("type", e.target.value)}
+        className="p-2 border rounded"
         value={filters.type || ""}
-        onChange={(value) => handleChange("type", String(value))}
-      />
+      >
+        <option value="">All Types</option>
+        {types.map((type) => (
+          <option key={type} value={type}>
+            {type}
+          </option>
+        ))}
+      </select>
 
-      <FilterSelect
-        label="Year"
-        options={years.map((y) => ({ label: y.toString(), value: y }))}
+      <select
+        onChange={(e) => handleChange("year", Number(e.target.value))}
+        className="p-2 border rounded"
         value={filters.year || ""}
-        onChange={(value) => handleChange("year", Number(value))}
-      />
+      >
+        <option value="">All Years</option>
+        {years.map((year) => (
+          <option key={year} value={year}>
+            {year}
+          </option>
+        ))}
+      </select>
+
+      <select
+        onChange={(e) =>
+          handleChange("sortBy", e.target.value as "price" | "year")
+        }
+        className="p-2 border rounded"
+        value={filters.sortBy || ""}
+      >
+        <option value="">Sort By</option>
+        <option value="price">Price</option>
+        <option value="year">Year</option>
+      </select>
+
+      <select
+        onChange={(e) =>
+          handleChange("order", e.target.value as "asc" | "desc")
+        }
+        className="p-2 border rounded"
+        value={filters.order || ""}
+        disabled={!filters.sortBy}
+      >
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+      </select>
     </div>
   );
 }
