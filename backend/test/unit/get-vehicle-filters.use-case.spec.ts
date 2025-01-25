@@ -16,6 +16,7 @@ describe("GetFiltersUseCase", () => {
       getAllYears: jest.fn(() => Promise.resolve([2023, 2022, 2021])),
       getAllTypes: jest.fn(() =>
         Promise.resolve(["SUV", "Sedan", "Truck"] as VehicleType[]),
+      ),
     };
 
     getFiltersUseCase = new GetFiltersUseCase(mockVehicleRepository);
