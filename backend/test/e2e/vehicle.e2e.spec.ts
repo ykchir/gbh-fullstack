@@ -46,4 +46,23 @@ describe('VehicleController (e2e)', () => {
         expect(response.body.vehicles.every((v) => v.manufacturer === 'Tesla')).toBeTruthy();
       });
   });
+
+  it('should return filters for vehicles (manufacturers, years, and types)', async () => {
+    await supertest(app.getHttpServer())
+      .get('/api/vehicles/filters')
+      .expect(200)
+      .expect((response) => {
+        const { manufacturers, years, types } = response.body;
+
+        // Ensure the structure is correct
+        expect(Array.isArray(manufacturers)).toBe(true);
+        expect(Array.isArray(years)).toBe(true);
+        expect(Array.isArray(types)).toBe(true);
+
+        // Example checks for expected content (adjust based on your dataset)
+        expect(manufacturers).toContain('Tesla');
+        expect(years).toContain(2023);
+        expect(types).toContain('SUV');
+      });
+  });
 });

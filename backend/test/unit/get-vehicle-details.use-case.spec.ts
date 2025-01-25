@@ -20,6 +20,9 @@ describe("GetVehicleDetailsUseCase", () => {
         return Promise.resolve(null);
       }),
       findAll: jest.fn(() => Promise.resolve({ data: [], total: 0 })),
+      getAllManufacturers: jest.fn(() => Promise.resolve([])),
+      getAllYears: jest.fn(() => Promise.resolve([])),
+      getAllTypes: jest.fn(() => Promise.resolve([])),
     };
 
     getVehicleDetailsUseCase = new GetVehicleDetailsUseCase(mockVehicleRepository);
