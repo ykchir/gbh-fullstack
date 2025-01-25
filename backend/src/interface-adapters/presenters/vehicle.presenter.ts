@@ -14,7 +14,26 @@ export class VehiclePresenter {
     return rest as GetVehiclesResponseDto;
   }
 
-  static toResponseList(vehicles: Vehicle[]): GetVehiclesResponseDto[] {
-    return vehicles.map((vehicle) => this.toResponse(vehicle));
+  static toResponseListWithPagination(data: {
+    data: Vehicle[];
+    total: number;
+  }) {
+    return {
+      vehicles: data.data.map((vehicle) => ({
+        id: vehicle.id,
+        manufacturer: vehicle.manufacturer,
+        model: vehicle.model,
+        year: vehicle.year,
+        type: vehicle.type,
+        price: vehicle.price,
+        fuelType: vehicle.fuelType,
+        transmission: vehicle.transmission,
+        mileage: vehicle.mileage,
+        features: vehicle.features,
+        images: vehicle.images,
+        description: vehicle.description,
+      })),
+      total: data.total,
+    };
   }
 }
