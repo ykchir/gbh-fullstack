@@ -14,15 +14,13 @@ export const fetchVehicles = async (): Promise<{ vehicles: Vehicle[] }> => {
   }
 };
 
-export const fetchVehicleById = async (
-  id: string,
-): Promise<{ vehicles: Vehicle }> => {
+export const fetchVehicleById = async (id: string): Promise<Vehicle> => {
   try {
     const response = await axios.get(`${API_URL}/vehicles/${id}`);
 
     return response.data;
   } catch (error) {
     console.error(error);
-    return { vehicles: {} as Vehicle };
+    return {} as Vehicle;
   }
 };

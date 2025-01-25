@@ -1,36 +1,31 @@
 import { fetchVehicleById } from "@/services/vehicleService";
-import Image from "next/image";
+import VehicleImage from "@/components/vehicles/VehicleImage";
+import VehicleInfo from "@/components/vehicles/VehicleInfo";
 
 export default async function VehicleDetails({
   params,
 }: {
   params: { id: string };
 }) {
-  const vehicle = await fetchVehicleById(params.id);
+  const { id } = await Promise.resolve(params);
+  const vehicle = await fetchVehicleById(id);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Images */}
-      <div>
-        <Image
-          src={vehicle.images[0]}
-          alt={`${vehicle.manufacturer} ${vehicle.model}`}
-          layout="fill"
-          objectFit="cover"
-          className="rounded-md"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-      </div>
+      {/* Vehicle Image */}
+      <VehicleImage
+        src={vehicle.images[0]}
+        alt={`${vehicle.manufacturer} ${vehicle.model}`}
+      />
 
-      {/* Details */}
-      <div>
-        <h1 className="text-2xl font-bold">
-          {vehicle.manufacturer} {vehicle.model}
-        </h1>
-        <p className="text-gray-500">{vehicle.year}</p>
-        <p className="text-lg font-bold text-blue-600 mt-2">${vehicle.price}</p>
-        <p className="mt-4">{vehicle.description}</p>
-      </div>
+      {/* Vehicle Info */}
+      <VehicleInfo
+        manufacturer={vehicle.manufacturer}
+        model={vehicle.model}
+        year={vehicle.year}
+        price={vehicle.price}
+        description={vehicle.description}
+      />
     </div>
   );
 }
