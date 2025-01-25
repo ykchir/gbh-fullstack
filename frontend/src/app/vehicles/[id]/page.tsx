@@ -7,7 +7,7 @@ export default async function VehicleDetails({
 }: {
   params: { id: string };
 }) {
-  const { id } = await Promise.resolve(params);
+  const { id } = await params;
   const vehicle = await fetchVehicleById(id);
 
   return (
