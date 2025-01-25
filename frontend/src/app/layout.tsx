@@ -1,42 +1,58 @@
-import { ReactNode } from "react";
-import "./globals.css";
 import Link from "next/link";
+import "./globals.css"; // Importation des styles globaux (Tailwind)
+import { Inter } from "next/font/google";
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Vehicle Showcase",
+  description: "Explore a collection of vehicles with filters and details.",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">
-        <header className="bg-gray-800 text-white py-4">
-          <nav className="container mx-auto px-4">
-            <Breadcrumb />
-          </nav>
-        </header>
-
-        <main className="flex-grow container mx-auto px-4 py-6">
-          {children}
-        </main>
-
-        <footer className="bg-gray-900 text-white py-4">
-          <div className="container mx-auto px-4 text-center">
-            © {new Date().getFullYear()} Vehicle Showcase. All rights reserved.
-          </div>
-        </footer>
+      <body className={`${inter.className} bg-gray-100`}>
+        <Header />
+        <main className="container mx-auto p-4">{children}</main>
+        <Footer />
       </body>
     </html>
   );
 }
 
-// Breadcrumb Component
+function Header() {
+  return (
+    <header className="bg-white shadow p-4">
+      <nav className="container mx-auto">
+        <Breadcrumb />
+      </nav>
+    </header>
+  );
+}
+
 function Breadcrumb() {
   return (
-    <ul className="flex space-x-2 text-sm">
-      <li>
-        <Link href="/" className="text-blue-400 hover:underline">
-          Home
-        </Link>
-      </li>
-      <li>/</li>
-      <li>Vehicles</li>
-    </ul>
+    <div className="text-sm text-gray-500">
+      <Link href="/" className="text-blue-600 hover:underline">
+        Home
+      </Link>
+      <span className="mx-2">/</span>
+      <span>Current Page</span>
+    </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="bg-gray-800 text-white py-4 mt-8">
+      <div className="container mx-auto text-center">
+        &copy; {new Date().getFullYear()} Vehicle Showcase. All rights reserved.
+      </div>
+    </footer>
   );
 }
