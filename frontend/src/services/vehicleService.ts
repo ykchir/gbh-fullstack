@@ -11,7 +11,7 @@ export async function fetchVehicles(filters: GetVehiclesFilters) {
       {
         params: filters,
         headers: {
-          "Cache-Control": "no-store", // Empêche le cache
+          "Cache-Control": "no-store",
         },
       },
     );
