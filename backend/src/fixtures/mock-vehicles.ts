@@ -12,7 +12,9 @@ export const MOCK_VEHICLES = [
     transmission: "Automatic",
     mileage: 0,
     features: ["Autopilot", "Full Self-Driving"],
-    images: ["image1.jpg"],
+    images: [
+      "https://teslamag.de/wp-content/uploads/tesla-model-s-grau-seite.jpg",
+    ],
     description:
       "High-performance electric sedan with cutting-edge technology.",
   },
@@ -27,7 +29,9 @@ export const MOCK_VEHICLES = [
     transmission: "Automatic",
     mileage: 1000,
     features: ["Panoramic roof", "All-Wheel Drive"],
-    images: ["image2.jpg"],
+    images: [
+      "https://mediapool.bmwgroup.com/cache/P9/202105/P90422467/P90422467-bmw-x5-edrive-xdrive45e-599px.jpg",
+    ],
     description: "Luxury SUV with impressive off-road capabilities.",
   },
   {
@@ -41,7 +45,9 @@ export const MOCK_VEHICLES = [
     transmission: "Manual",
     mileage: 15000,
     features: ["Adaptive Cruise Control"],
-    images: ["image3.jpg"],
+    images: [
+      "https://ste-foytoyota.com/wp-content/uploads/2019/02/ste-foy-toyota-Corolla-Hybrid-2020-1.3-e1549663034994-scaled.jpg",
+    ],
     description: "Reliable and fuel-efficient compact sedan.",
   },
   {
@@ -55,7 +61,9 @@ export const MOCK_VEHICLES = [
     transmission: "Automatic",
     mileage: 200,
     features: ["Towing Package", "4x4 Drive"],
-    images: ["image4.jpg"],
+    images: [
+      "https://mkt-vehicleimages-prd.autotradercdn.ca/photos/chrome/Expanded/White/2023FOT230001/2023FOT23000101.jpg",
+    ],
     description: "Best-selling pickup truck with robust performance.",
   },
   {
@@ -69,7 +77,9 @@ export const MOCK_VEHICLES = [
     transmission: "Automatic",
     mileage: 500,
     features: ["Fast Charging", "Compact Design"],
-    images: ["image5.jpg"],
+    images: [
+      "https://di-uploads-pod1.dealerinspire.com/depaulachevy/uploads/2021/04/2022-Chevy-Bolt-EUV-LT-Model-Left.jpg",
+    ],
     description: "Affordable electric vehicle with impressive range.",
   },
   {
@@ -83,7 +93,9 @@ export const MOCK_VEHICLES = [
     transmission: "CVT",
     mileage: 12000,
     features: ["Lane-Keeping Assist", "Eco Mode"],
-    images: ["image6.jpg"],
+    images: [
+      "https://mkt-vehicleimages-prd.autotradercdn.ca/photos/chrome/Expanded/White/2020HOC020031/2020HOC02003101.jpg",
+    ],
     description: "Popular sedan known for its reliability and comfort.",
   },
   {
@@ -97,7 +109,9 @@ export const MOCK_VEHICLES = [
     transmission: "Automatic",
     mileage: 8000,
     features: ["Luxury Interior", "Adaptive Suspension"],
-    images: ["image7.jpg"],
+    images: [
+      "https://p.turbosquid.com/ts-thumb/Sv/q6X2at/8i/mercedesbenzeclass20211/png/1618180401/600x600/fit_q87/2762d9218169c56ac4e1bc89bb8264146314ab8e/mercedesbenzeclass20211.jpg",
+    ],
     description: "Executive sedan with advanced comfort and performance.",
   },
   {
@@ -111,7 +125,9 @@ export const MOCK_VEHICLES = [
     transmission: "Manual",
     mileage: 500,
     features: ["Removable Doors", "4x4 Drive"],
-    images: ["image8.jpg"],
+    images: [
+      "https://images.hgmsites.net/lrg/2022-jeep-wrangler-unlimited-sport-4x4-angular-front-exterior-view_100827022_l.jpg",
+    ],
     description: "Rugged SUV designed for off-road adventures.",
   },
   {
@@ -125,7 +141,9 @@ export const MOCK_VEHICLES = [
     transmission: "Automatic",
     mileage: 1000,
     features: ["Zero Emissions", "Fast Charging"],
-    images: ["image9.jpg"],
+    images: [
+      "https://res.cloudinary.com/finn-auto/image/fetch/q_auto,f_auto,c_lpad,dpr_2,w_360,ar_8:5,b_white/https://dataops-nocodb-s3-bucket-production.s3.eu-central-1.amazonaws.com/nc/uploads/noco/fleet_blue_dragon/car_images/image/Ao7uVj.png",
+    ],
     description: "Popular electric hatchback with affordable pricing.",
   },
   {
@@ -139,7 +157,9 @@ export const MOCK_VEHICLES = [
     transmission: "Automatic",
     mileage: 0,
     features: ["Sport Chrono Package", "Rear-Wheel Drive"],
-    images: ["image10.jpg"],
+    images: [
+      "https://images.hgmsites.net/lrg/2023-porsche-911-carrera-s-coupe-angular-front-exterior-view_100861172_l.jpg",
+    ],
     description: "Iconic sports car with unparalleled performance.",
   },
 ];
