@@ -1,5 +1,5 @@
 import Link from "next/link";
-import "./globals.css"; // Importation des styles globaux (Tailwind)
+import "./globals.css";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
