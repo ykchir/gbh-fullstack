@@ -1,10 +1,10 @@
 import { Vehicle as OriginalVehicle } from "shared-types";
+import { GetVehiclesResponseDto } from "../../application/dtos/get-vehicles.response.dto";
 
 interface Vehicle extends Omit<OriginalVehicle, "createdAt" | "updatedAt"> {
   createdAt?: Date;
   updatedAt?: Date;
 }
-import { GetVehiclesResponseDto } from "../../application/dtos/get-vehicles.response.dto";
 
 export class VehiclePresenter {
   static toResponse(vehicle: Vehicle): GetVehiclesResponseDto {
@@ -19,20 +19,7 @@ export class VehiclePresenter {
     total: number;
   }) {
     return {
-      vehicles: data.data.map((vehicle) => ({
-        id: vehicle.id,
-        manufacturer: vehicle.manufacturer,
-        model: vehicle.model,
-        year: vehicle.year,
-        type: vehicle.type,
-        price: vehicle.price,
-        fuelType: vehicle.fuelType,
-        transmission: vehicle.transmission,
-        mileage: vehicle.mileage,
-        features: vehicle.features,
-        images: vehicle.images,
-        description: vehicle.description,
-      })),
+      vehicles: data.data.map((vehicle) => this.toResponse(vehicle)),
       total: data.total,
     };
   }

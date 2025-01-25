@@ -1,6 +1,6 @@
-import { MOCK_VEHICLES } from "../../../fixtures/mock-vehicles";
 import { Vehicle } from "../../../core/entities/vehicle.entity";
 import { VehicleRepository } from "../../../core/interfaces/vehicle.repository";
+import { MOCK_VEHICLES } from "../../../fixtures/mock-vehicles";
 
 export class MockVehicleRepository implements VehicleRepository {
   private vehicles: Vehicle[];
@@ -29,43 +29,32 @@ export class MockVehicleRepository implements VehicleRepository {
     manufacturer?: string;
     type?: string;
     year?: number;
-    page?: number;
-    limit?: number;
   }): Promise<{ data: Vehicle[]; total: number }> {
-    let filteredVehicles = this.vehicles;
+    let filteredVehicles = [...this.vehicles];
 
-    if (filters?.manufacturer) {
-      const normalizedManufacturer = filters.manufacturer.toLowerCase();
-      filteredVehicles = filteredVehicles.filter(
-        (v) => v.manufacturer.toLowerCase() === normalizedManufacturer,
+    if (filters.manufacturer) {
+      filteredVehicles = filteredVehicles.filter((v) =>
+        v.manufacturer
+          .toLowerCase()
+          .includes(filters.manufacturer!.toLowerCase()),
       );
     }
 
-    if (filters?.type) {
-      const normalizedType = filters.type.toLowerCase();
-      filteredVehicles = filteredVehicles.filter(
-        (v) => v.type.toLowerCase() === normalizedType,
+    if (filters.type) {
+      filteredVehicles = filteredVehicles.filter((v) =>
+        v.type.toLowerCase().includes(filters.type!.toLowerCase()),
       );
     }
 
-    if (filters?.year) {
+    if (filters.year) {
       filteredVehicles = filteredVehicles.filter(
         (v) => v.year === filters.year,
       );
     }
 
-    const total = filteredVehicles.length;
-
-    const page = filters.page ?? 1;
-    const limit = filters.limit ?? 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-
-    const paginatedVehicles = filteredVehicles.slice(startIndex, endIndex);
-
     return Promise.resolve({
-      data: paginatedVehicles,
-      total,
+      data: filteredVehicles,
+      total: filteredVehicles.length,
     });
   }
 }
