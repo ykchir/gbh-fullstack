@@ -52,11 +52,11 @@ describe("GetFiltersUseCase", () => {
 
   it("should throw an error if repository methods fail", async () => {
     mockVehicleRepository.getAllManufacturers = jest.fn(() =>
-      Promise.reject(new Error("Error fetching manufacturers")),
+      Promise.reject(new Error("Failed to fetch filters.")),
     );
 
     await expect(getFiltersUseCase.execute()).rejects.toThrow(
-      "Error fetching manufacturers",
+      "Failed to fetch filters.",
     );
 
     expect(mockVehicleRepository.getAllManufacturers).toHaveBeenCalledTimes(1);
