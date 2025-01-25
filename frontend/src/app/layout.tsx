@@ -1,42 +1,27 @@
-import { ReactNode } from "react";
 import "./globals.css";
-import Link from "next/link";
+import { Inter } from "next/font/google";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "GBH vehicle Showcase",
+  description: "Explore a collection of vehicles with filters and details.",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">
-        <header className="bg-gray-800 text-white py-4">
-          <nav className="container mx-auto px-4">
-            <Breadcrumb />
-          </nav>
-        </header>
-
-        <main className="flex-grow container mx-auto px-4 py-6">
-          {children}
-        </main>
-
-        <footer className="bg-gray-900 text-white py-4">
-          <div className="container mx-auto px-4 text-center">
-            © {new Date().getFullYear()} Vehicle Showcase. All rights reserved.
-          </div>
-        </footer>
+      <body className={`${inter.className} bg-gray-100`}>
+        <Header />
+        <main className="container mx-auto p-4">{children}</main>
+        <Footer />
       </body>
     </html>
-  );
-}
-
-// Breadcrumb Component
-function Breadcrumb() {
-  return (
-    <ul className="flex space-x-2 text-sm">
-      <li>
-        <Link href="/" className="text-blue-400 hover:underline">
-          Home
-        </Link>
-      </li>
-      <li>/</li>
-      <li>Vehicles</li>
-    </ul>
   );
 }
