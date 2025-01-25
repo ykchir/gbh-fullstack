@@ -1,3 +1,5 @@
+import { VehicleType } from "shared-types";
+
 export interface GetVehiclesFilters {
   manufacturer?: string;
   type?: string;
@@ -6,4 +8,10 @@ export interface GetVehiclesFilters {
   limit?: number;
   sortBy?: "price" | "year";
   order?: "asc" | "desc";
+}
+
+export interface VehiclesFilters {
+  manufacturers: string[];
+  years: number[];
+  types: VehicleType[];
 }

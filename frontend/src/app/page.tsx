@@ -1,42 +1,27 @@
 import VehicleCard from "@/components/vehicles/VehicleCard";
-import { fetchVehicles } from "@/services/vehicleService";
-import { Vehicle } from "shared-types";
 import Pagination from "@/components/ui/Pagination";
 import FiltersPanel from "@/components/ui/FiltersPanel";
 import { GetVehiclesFilters } from "@/types/api/vehicles";
+import { fetchHomeData } from "@/services/homeService";
 
 export default async function Home({
-  searchParams,
+  searchParams: searchParamsPromise,
 }: {
   searchParams: Promise<GetVehiclesFilters>;
 }) {
-  const resolvedSearchParams = await searchParams;
+  const searchParams = await searchParamsPromise;
 
-  const filters: GetVehiclesFilters = {
-    manufacturer: resolvedSearchParams.manufacturer || undefined,
-    type: resolvedSearchParams.type || undefined,
-    year: resolvedSearchParams.year
-      ? parseInt(resolvedSearchParams.year.toString(), 10)
-      : undefined,
-    page: resolvedSearchParams.page
-      ? parseInt(resolvedSearchParams.page.toString(), 10)
-      : 1,
-    limit: 6,
-    sortBy: resolvedSearchParams.sortBy || undefined,
-    order: resolvedSearchParams.order || undefined,
-  };
-
-  const { vehicles, total }: { vehicles: Vehicle[]; total: number } =
-    await fetchVehicles(filters);
+  const { vehicles, total, vehicleFilters, filters } =
+    await fetchHomeData(searchParams);
 
   const totalPages = Math.ceil(total / (filters.limit || 1));
 
   return (
     <div>
       <FiltersPanel
-        manufacturers={["Toyota", "Honda", "Tesla"]}
-        types={["SUV", "Sedan", "Truck"]}
-        years={[2023, 2022, 2021]}
+        manufacturers={vehicleFilters.manufacturers}
+        types={vehicleFilters.types}
+        years={vehicleFilters.years}
         currentFilters={filters}
       />
 

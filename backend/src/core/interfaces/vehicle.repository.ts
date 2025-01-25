@@ -1,3 +1,4 @@
+import { VehicleType } from "shared-types";
 import { Vehicle } from "../entities/vehicle.entity";
 
 export interface VehicleRepository {
@@ -10,6 +11,8 @@ export interface VehicleRepository {
     sortBy?: "price" | "year";
     order?: "asc" | "desc";
   }): Promise<{ data: Vehicle[]; total: number }>;
-
   findById(id: string): Promise<Vehicle | null>;
+  getAllManufacturers(): Promise<string[]>;
+  getAllYears(): Promise<number[]>;
+  getAllTypes(): Promise<VehicleType[]>;
 }

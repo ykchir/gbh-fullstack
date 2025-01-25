@@ -3,12 +3,15 @@ import { GetVehiclesUseCase } from "../../application/use-cases/get-vehicles.use
 import { GetVehicleDetailsUseCase } from "../../application/use-cases/get-vehicle-details.use-case";
 import { VehiclePresenter } from "../presenters/vehicle.presenter";
 import { GetVehiclesDto } from "../../application/dtos/get-vehicles.dto";
+import { GetFiltersResponseDto } from "../../application/dtos/get-filters.response.dto";
+import { GetFiltersUseCase } from "../../application/use-cases/get-filters.use-case";
 
 @Controller("api/vehicles")
 export class VehicleController {
   constructor(
     private readonly getVehiclesUseCase: GetVehiclesUseCase,
     private readonly getVehicleDetailsUseCase: GetVehicleDetailsUseCase,
+    private readonly getFiltersUseCase: GetFiltersUseCase,
   ) {}
 
   @Get()
@@ -16,6 +19,13 @@ export class VehicleController {
     const vehicles = await this.getVehiclesUseCase.execute(filters);
 
     return VehiclePresenter.toResponseListWithPagination(vehicles);
+  }
+
+  @Get("filters")
+  async getFilters(): Promise<GetFiltersResponseDto> {
+    const filters = await this.getFiltersUseCase.execute();
+
+    return filters;
   }
 
   @Get(":id")

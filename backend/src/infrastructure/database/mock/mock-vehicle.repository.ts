@@ -1,3 +1,4 @@
+import { VehicleType } from "shared-types";
 import { Vehicle } from "../../../core/entities/vehicle.entity";
 import { VehicleRepository } from "../../../core/interfaces/vehicle.repository";
 import { MOCK_VEHICLES } from "../../../fixtures/mock-vehicles";
@@ -62,5 +63,23 @@ export class MockVehicleRepository implements VehicleRepository {
     return Promise.resolve(
       this.vehicles.find((vehicle) => vehicle.id === id) || null,
     );
+  }
+
+  async getAllManufacturers(): Promise<string[]> {
+    const manufacturers = MOCK_VEHICLES.map((v) => v.manufacturer);
+
+    return Promise.resolve([...new Set(manufacturers)] as string[]);
+  }
+
+  async getAllYears(): Promise<number[]> {
+    const years = MOCK_VEHICLES.map((v) => v.year);
+
+    return Promise.resolve([...new Set(years)].sort((a, b) => b - a));
+  }
+
+  async getAllTypes(): Promise<VehicleType[]> {
+    const types = MOCK_VEHICLES.map((v) => v.type);
+
+    return Promise.resolve([...new Set(types)] as VehicleType[]);
   }
 }

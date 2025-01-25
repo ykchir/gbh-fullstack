@@ -77,6 +77,9 @@ describe("GetVehiclesUseCase", () => {
         }
         return Promise.resolve(null);
       }),
+      getAllManufacturers: jest.fn(() => Promise.resolve([])),
+      getAllYears: jest.fn(() => Promise.resolve([])),
+      getAllTypes: jest.fn(() => Promise.resolve([])),
     };
 
     getVehiclesUseCase = new GetVehiclesUseCase(mockVehicleRepository);
