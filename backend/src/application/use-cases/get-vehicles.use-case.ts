@@ -56,7 +56,6 @@ export class GetVehiclesUseCase {
         vehicles = sortVehicles(vehicles, sortBy, order);
       }
 
-      // Apply pagination
       const paginatedResult = paginateVehicles(vehicles, page, limit);
 
       return {

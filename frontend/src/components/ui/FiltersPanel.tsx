@@ -50,7 +50,6 @@ export default function FiltersPanel({
 
   return (
     <div>
-      {/* Toggle Filters Button */}
       <div className="mb-4">
         <button
           onClick={toggleVisibility}
@@ -60,7 +59,6 @@ export default function FiltersPanel({
         </button>
       </div>
 
-      {/* Filters Section */}
       <div
         className={`transition-all duration-500 ease-in-out ${
           isVisible
