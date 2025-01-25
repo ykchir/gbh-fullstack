@@ -1,23 +1,27 @@
+import { GetVehiclesFilters } from "@/types/api/vehicles";
 import axios from "axios";
 import { Vehicle } from "shared-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
 
-export const fetchVehicles = async (
-  page = 1,
-  limit = 6,
-): Promise<{ vehicles: Vehicle[]; total: number }> => {
+export async function fetchVehicles(filters: GetVehiclesFilters) {
   try {
-    const response = await axios.get(
-      `${API_URL}/vehicles?page=${page}&limit=${limit}`,
+    const { data } = await axios.get<{ vehicles: Vehicle[]; total: number }>(
+      `${API_URL}/vehicles`,
+      {
+        params: filters,
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      },
     );
 
-    return response.data;
+    return data;
   } catch (error) {
-    console.error(error);
-    return { vehicles: [], total: 0 };
+    console.error("Failed to fetch vehicles:", error);
+    throw new Error("Unable to fetch vehicles.");
   }
-};
+}
 
 export const fetchVehicleById = async (id: string): Promise<Vehicle> => {
   try {
