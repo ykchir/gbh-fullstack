@@ -57,4 +57,10 @@ export class MockVehicleRepository implements VehicleRepository {
       total: filteredVehicles.length,
     });
   }
+
+  async findById(id: string): Promise<Vehicle | null> {
+    return Promise.resolve(
+      this.vehicles.find((vehicle) => vehicle.id === id) || null,
+    );
+  }
 }

@@ -10,4 +10,6 @@ export interface VehicleRepository {
     sortBy?: "price" | "year";
     order?: "asc" | "desc";
   }): Promise<{ data: Vehicle[]; total: number }>;
+
+  findById(id: string): Promise<Vehicle | null>;
 }
