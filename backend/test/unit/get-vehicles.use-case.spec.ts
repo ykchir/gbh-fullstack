@@ -28,7 +28,6 @@ describe("GetVehiclesUseCase", () => {
             ),
         );
 
-        // Filtering logic
         if (filters?.manufacturer) {
           vehicles = vehicles.filter(
             (v) => v.manufacturer === filters.manufacturer,
@@ -41,7 +40,6 @@ describe("GetVehiclesUseCase", () => {
           vehicles = vehicles.filter((v) => v.year === filters.year);
         }
 
-        // Sorting logic
         if (filters?.sortBy) {
           vehicles.sort((a, b) => {
             const fieldA = a[filters.sortBy as keyof Vehicle];

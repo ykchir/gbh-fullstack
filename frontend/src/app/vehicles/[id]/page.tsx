@@ -12,13 +12,11 @@ export default async function VehicleDetails({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Vehicle Image */}
       <VehicleImage
         src={vehicle.images[0]}
         alt={`${vehicle.manufacturer} ${vehicle.model}`}
       />
 
-      {/* Vehicle Info */}
       <VehicleInfo
         manufacturer={vehicle.manufacturer}
         model={vehicle.model}

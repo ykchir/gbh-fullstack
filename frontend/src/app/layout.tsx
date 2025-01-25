@@ -1,11 +1,12 @@
-import Link from "next/link";
 import "./globals.css";
 import { Inter } from "next/font/google";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Vehicle Showcase",
+  title: "GBH vehicle Showcase",
   description: "Explore a collection of vehicles with filters and details.",
 };
 
@@ -22,37 +23,5 @@ export default function RootLayout({
         <Footer />
       </body>
     </html>
-  );
-}
-
-function Header() {
-  return (
-    <header className="bg-white shadow p-4">
-      <nav className="container mx-auto">
-        <Breadcrumb />
-      </nav>
-    </header>
-  );
-}
-
-function Breadcrumb() {
-  return (
-    <div className="text-sm text-gray-500">
-      <Link href="/" className="text-blue-600 hover:underline">
-        Home
-      </Link>
-      <span className="mx-2">/</span>
-      <span>Current Page</span>
-    </div>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="bg-gray-800 text-white py-4 mt-8">
-      <div className="container mx-auto text-center">
-        &copy; {new Date().getFullYear()} Vehicle Showcase. All rights reserved.
-      </div>
-    </footer>
   );
 }
