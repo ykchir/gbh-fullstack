@@ -62,67 +62,70 @@ export default function FiltersPanel({
 
       {/* Filters Section */}
       <div
-        className={`flex flex-col gap-4 p-4 border rounded transition-transform duration-300 ${
-          isVisible ? "block" : "hidden"
+        className={`transition-all duration-500 ease-in-out ${
+          isVisible
+            ? "opacity-100 max-h-screen"
+            : "opacity-0 max-h-0 overflow-hidden"
         }`}
       >
-        <FilterSelect
-          label="Manufacturer"
-          options={manufacturers.map((m) => ({ label: m, value: m }))}
-          value={filters.manufacturer || ""}
-          onChange={(value) => handleChange("manufacturer", value as string)}
-        />
+        <div className="flex flex-col gap-4 p-4 border rounded">
+          <FilterSelect
+            label="Manufacturer"
+            options={manufacturers.map((m) => ({ label: m, value: m }))}
+            value={filters.manufacturer || ""}
+            onChange={(value) => handleChange("manufacturer", value as string)}
+          />
 
-        <FilterSelect
-          label="Type"
-          options={types.map((t) => ({ label: t, value: t }))}
-          value={filters.type || ""}
-          onChange={(value) => handleChange("type", value as string)}
-        />
+          <FilterSelect
+            label="Type"
+            options={types.map((t) => ({ label: t, value: t }))}
+            value={filters.type || ""}
+            onChange={(value) => handleChange("type", value as string)}
+          />
 
-        <FilterSelect
-          label="Year"
-          options={years.map((y) => ({ label: y.toString(), value: y }))}
-          value={filters.year || ""}
-          onChange={(value) => handleChange("year", Number(value))}
-        />
+          <FilterSelect
+            label="Year"
+            options={years.map((y) => ({ label: y.toString(), value: y }))}
+            value={filters.year || ""}
+            onChange={(value) => handleChange("year", Number(value))}
+          />
 
-        <FilterSelect
-          label="Sort By"
-          options={[
-            { label: "Price", value: "price" },
-            { label: "Year", value: "year" },
-          ]}
-          value={filters.sortBy || ""}
-          onChange={(value) =>
-            handleChange("sortBy", value as "price" | "year")
-          }
-        />
+          <FilterSelect
+            label="Sort By"
+            options={[
+              { label: "Price", value: "price" },
+              { label: "Year", value: "year" },
+            ]}
+            value={filters.sortBy || ""}
+            onChange={(value) =>
+              handleChange("sortBy", value as "price" | "year")
+            }
+          />
 
-        <FilterSelect
-          label="Order"
-          options={[
-            { label: "Ascending", value: "asc" },
-            { label: "Descending", value: "desc" },
-          ]}
-          value={filters.order || ""}
-          onChange={(value) => handleChange("order", value as "asc" | "desc")}
-          disabled={!filters.sortBy}
-        />
+          <FilterSelect
+            label="Order"
+            options={[
+              { label: "Ascending", value: "asc" },
+              { label: "Descending", value: "desc" },
+            ]}
+            value={filters.order || ""}
+            onChange={(value) => handleChange("order", value as "asc" | "desc")}
+            disabled={!filters.sortBy}
+          />
 
-        {/* Reset Filters Button */}
-        <div className="flex justify-end mt-4">
-          <button
-            onClick={handleReset}
-            disabled={isResetDisabled}
-            className={`p-2 rounded ${
-              isResetDisabled
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            } w-full md:w-auto`}
-          >
-            Reset Filters
-          </button>
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={handleReset}
+              disabled={isResetDisabled}
+              className={`p-2 rounded ${
+                isResetDisabled
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              } w-full md:w-auto`}
+            >
+              Reset Filters
+            </button>
+          </div>
         </div>
       </div>
     </div>
