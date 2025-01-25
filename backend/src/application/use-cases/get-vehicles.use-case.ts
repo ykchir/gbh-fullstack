@@ -9,7 +9,13 @@ export class GetVehiclesUseCase {
     private readonly repository: VehicleRepository,
   ) {}
 
-  async execute(): Promise<Vehicle[]> {
-    return this.repository.findAll();
+  async execute(
+    filters: {
+      manufacturer?: string;
+      type?: string;
+      year?: number;
+    } = {},
+  ): Promise<Vehicle[]> {
+    return this.repository.findAll(filters);
   }
 }

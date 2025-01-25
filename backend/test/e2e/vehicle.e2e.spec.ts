@@ -7,7 +7,7 @@ describe('VehicleController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
@@ -16,16 +16,37 @@ describe('VehicleController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
-  it('/vehicles (GET)', () => {
+  it('should return a list of all vehicles (no filters)', async () => {
     return supertest(app.getHttpServer())
-      .get('/vehicles')
+      .get('/api/vehicles')
       .expect(200)
       .expect((response) => {
-        expect(response.body).toHaveLength(10);
+        expect(response.body).toHaveLength(10); // Adaptez ce nombre si nécessaire
         expect(response.body[0].manufacturer).toBe('Tesla');
+      });
+  });
+
+  it('should filter vehicles by manufacturer', async () => {
+    return supertest(app.getHttpServer())
+      .get('/api/vehicles?manufacturer=Tesla')
+      .expect(200)
+      .expect((response) => {
+        expect(response.body).toHaveLength(1); // Adaptez ce nombre si nécessaire
+        expect(response.body[0].manufacturer).toBe('Tesla');
+      });
+  });
+
+  it('should return an empty array if no vehicles match the filters', async () => {
+    return supertest(app.getHttpServer())
+      .get('/api/vehicles?manufacturer=Unknown')
+      .expect(200)
+      .expect((response) => {
+        expect(response.body).toHaveLength(0);
       });
   });
 });

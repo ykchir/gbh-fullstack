@@ -12,5 +12,6 @@ import { MockVehicleRepository } from "../../../infrastructure/database/mock/moc
       useClass: MockVehicleRepository,
     },
   ],
+  exports: [GetVehiclesUseCase],
 })
 export class AppModule {}
