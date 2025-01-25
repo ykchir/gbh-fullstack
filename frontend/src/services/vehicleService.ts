@@ -3,14 +3,19 @@ import { Vehicle } from "shared-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
 
-export const fetchVehicles = async (): Promise<{ vehicles: Vehicle[] }> => {
+export const fetchVehicles = async (
+  page = 1,
+  limit = 6,
+): Promise<{ vehicles: Vehicle[]; total: number }> => {
   try {
-    const response = await axios.get(`${API_URL}/vehicles`);
+    const response = await axios.get(
+      `${API_URL}/vehicles?page=${page}&limit=${limit}`,
+    );
 
     return response.data;
   } catch (error) {
     console.error(error);
-    return { vehicles: [] };
+    return { vehicles: [], total: 0 };
   }
 };
 
