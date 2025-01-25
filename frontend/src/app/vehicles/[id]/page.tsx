@@ -5,9 +5,9 @@ import VehicleInfo from "@/components/vehicles/VehicleInfo";
 export default async function VehicleDetails({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = await Promise.resolve(params);
+  const { id } = await params;
   const vehicle = await fetchVehicleById(id);
 
   return (

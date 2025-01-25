@@ -18,8 +18,7 @@ export async function fetchVehicles(filters: GetVehiclesFilters) {
 
     return data;
   } catch (error) {
-    console.error("Failed to fetch vehicles:", error);
-    throw new Error("Unable to fetch vehicles.");
+    throw new Error(`Unable to fetch vehicles. Error: ${error}`);
   }
 }
 
@@ -29,7 +28,7 @@ export const fetchVehicleById = async (id: string): Promise<Vehicle> => {
 
     return response.data;
   } catch (error) {
-    console.error(error);
+    throw new Error(`Unable to fetch vehicle by id. Error: ${error}`);
     return {} as Vehicle;
   }
 };
@@ -40,7 +39,7 @@ export const fetchVehicleFilters = async (): Promise<VehiclesFilters> => {
 
     return response.data;
   } catch (error) {
-    console.error(error);
+    throw new Error(`Unable to fetch vehicle filter. Error: ${error}`);
     return {} as VehiclesFilters;
   }
 };
