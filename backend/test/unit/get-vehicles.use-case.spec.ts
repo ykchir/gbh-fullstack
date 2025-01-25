@@ -28,24 +28,58 @@ describe("GetVehiclesUseCase", () => {
             ),
         );
 
+        // Filtering logic
         if (filters?.manufacturer) {
           vehicles = vehicles.filter(
-            (v) => v.manufacturer.toLowerCase() === filters.manufacturer!.toLowerCase(),
+            (v) => v.manufacturer === filters.manufacturer,
           );
         }
         if (filters?.type) {
-          vehicles = vehicles.filter((v) => v.type.toLowerCase() === filters.type!.toLowerCase());
+          vehicles = vehicles.filter((v) => v.type === filters.type);
         }
         if (filters?.year) {
           vehicles = vehicles.filter((v) => v.year === filters.year);
         }
 
+        // Sorting logic
+        if (filters?.sortBy) {
+          vehicles.sort((a, b) => {
+            const fieldA = a[filters.sortBy as keyof Vehicle];
+            const fieldB = b[filters.sortBy as keyof Vehicle];
+
+            if (fieldA === undefined || fieldB === undefined) {
+              throw new Error(`Invalid sort field: ${filters.sortBy}`);
+            }
+
+            if (filters.order === "asc") {
+              return fieldA > fieldB ? 1 : fieldA < fieldB ? -1 : 0;
+            } else {
+              return fieldA < fieldB ? 1 : fieldA > fieldB ? -1 : 0;
+            }
+          });
+        }
+
+        const page = filters.page ?? 1;
+        const limit = filters.limit ?? 10;
+        const start = (page - 1) * limit;
+        const end = start + limit;
         return Promise.resolve({
-          data: vehicles,
+          data: vehicles.slice(start, end),
           total: vehicles.length,
         });
       }),
-    } as VehicleRepository;
+      findById: jest.fn((id) => {
+        const vehicle = MOCK_VEHICLES.find((v) => v.id === id);
+        if (vehicle) {
+          return Promise.resolve({
+            ...vehicle,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+        }
+        return Promise.resolve(null);
+      }),
+    };
 
     getVehiclesUseCase = new GetVehiclesUseCase(mockVehicleRepository);
   });
