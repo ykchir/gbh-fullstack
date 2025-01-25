@@ -29,7 +29,9 @@ export class MockVehicleRepository implements VehicleRepository {
     manufacturer?: string;
     type?: string;
     year?: number;
-  }): Promise<Vehicle[]> {
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: Vehicle[]; total: number }> {
     let filteredVehicles = this.vehicles;
 
     if (filters?.manufacturer) {
@@ -52,6 +54,18 @@ export class MockVehicleRepository implements VehicleRepository {
       );
     }
 
-    return Promise.resolve(filteredVehicles);
+    const total = filteredVehicles.length;
+
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    const paginatedVehicles = filteredVehicles.slice(startIndex, endIndex);
+
+    return Promise.resolve({
+      data: paginatedVehicles,
+      total,
+    });
   }
 }

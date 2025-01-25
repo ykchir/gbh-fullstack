@@ -5,5 +5,7 @@ export interface VehicleRepository {
     manufacturer?: string;
     type?: string;
     year?: number;
-  }): Promise<Vehicle[]>;
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: Vehicle[]; total: number }>;
 }

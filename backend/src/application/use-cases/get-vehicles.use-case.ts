@@ -14,8 +14,10 @@ export class GetVehiclesUseCase {
       manufacturer?: string;
       type?: string;
       year?: number;
+      page?: number;
+      limit?: number;
     } = {},
-  ): Promise<Vehicle[]> {
+  ): Promise<{ data: Vehicle[]; total: number }> {
     return this.repository.findAll(filters);
   }
 }
