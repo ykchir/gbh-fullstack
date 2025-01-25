@@ -1,4 +1,4 @@
-import { GetVehiclesFilters } from "@/types/api/vehicles";
+import { GetVehiclesFilters, VehiclesFilters } from "@/types/api/vehicles";
 import axios from "axios";
 import { Vehicle } from "shared-types";
 
@@ -31,5 +31,16 @@ export const fetchVehicleById = async (id: string): Promise<Vehicle> => {
   } catch (error) {
     console.error(error);
     return {} as Vehicle;
+  }
+};
+
+export const fetchVehicleFilters = async (): Promise<VehiclesFilters> => {
+  try {
+    const response = await axios.get(`${API_URL}/vehicles/filters`);
+
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return {} as VehiclesFilters;
   }
 };

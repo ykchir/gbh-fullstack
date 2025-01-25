@@ -8,7 +8,7 @@ export class GetVehiclesDto {
 
   @IsOptional()
   @IsString()
-  @Type(() => Number)
+  @Type(() => String)
   type?: string;
 
   @IsOptional()
