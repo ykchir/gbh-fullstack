@@ -25,7 +25,33 @@ export class MockVehicleRepository implements VehicleRepository {
     );
   }
 
-  async findAll(): Promise<Vehicle[]> {
-    return Promise.resolve(this.vehicles);
+  async findAll(filters: {
+    manufacturer?: string;
+    type?: string;
+    year?: number;
+  }): Promise<Vehicle[]> {
+    let filteredVehicles = this.vehicles;
+
+    if (filters?.manufacturer) {
+      const normalizedManufacturer = filters.manufacturer.toLowerCase();
+      filteredVehicles = filteredVehicles.filter(
+        (v) => v.manufacturer.toLowerCase() === normalizedManufacturer,
+      );
+    }
+
+    if (filters?.type) {
+      const normalizedType = filters.type.toLowerCase();
+      filteredVehicles = filteredVehicles.filter(
+        (v) => v.type.toLowerCase() === normalizedType,
+      );
+    }
+
+    if (filters?.year) {
+      filteredVehicles = filteredVehicles.filter(
+        (v) => v.year === filters.year,
+      );
+    }
+
+    return Promise.resolve(filteredVehicles);
   }
 }

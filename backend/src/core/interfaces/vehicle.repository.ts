@@ -1,5 +1,9 @@
 import { Vehicle } from "../entities/vehicle.entity";
 
 export interface VehicleRepository {
-  findAll(): Promise<Vehicle[]>;
+  findAll(filters: {
+    manufacturer?: string;
+    type?: string;
+    year?: number;
+  }): Promise<Vehicle[]>;
 }
