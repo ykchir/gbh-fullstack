@@ -35,6 +35,13 @@ export default function FiltersPanel({
     router.push(`/?${queryParams.toString()}`);
   };
 
+  const handleReset = () => {
+    setFilters({ page: 1, limit: 6 });
+    router.push("/");
+  };
+
+  const isResetDisabled = !Object.values(filters).some((v) => v !== undefined);
+
   return (
     <div className="flex flex-col gap-4 p-4 border rounded">
       <select
@@ -99,6 +106,20 @@ export default function FiltersPanel({
         <option value="asc">Ascending</option>
         <option value="desc">Descending</option>
       </select>
+
+      <div className="flex justify-end mt-4">
+        <button
+          onClick={handleReset}
+          disabled={isResetDisabled}
+          className={`p-2 rounded ${
+            isResetDisabled
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          } w-full md:w-auto`}
+        >
+          Reset Filters
+        </button>
+      </div>
     </div>
   );
 }
