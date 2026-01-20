@@ -1,15 +1,34 @@
-Oui, ma question c’était : est-ce que document-service doit appeler Cognito ou passer par user-service.
+1) Cadrage technique + contrat API + sécurité — 0,5 à 1,5 j.h
+Définition endpoint (payload, taille max, formats), codes erreurs, motifs KO.
+Gestion auth (A definir )
 
-Je veux trancher :
-- Je refuse que document-service appelle Cognito pour valider les tokens (latence, duplication config, risques, coûts).
-- Je refuse aussi un call user-service systématique à chaque requête (SPOF + hop réseau).
+2) Création du microservice NestJS (squelette + standards) — 1 à 2 j.h
+Repo/module, Dockerfile, config, healthcheck, versioning.
+Middleware de correlationId / requestId.
+Validation d’entrée (mime, taille, dimensions si dispo).
 
-Je veux donc l’Option C comme baseline :
-- Chaque service valide le JWT localement via JWKS (cache, vérif iss/aud/exp/signature, extraction claims).
-- Seul user-service gère refresh/login (c’est le seul endroit qui utilise le SDK Cognito).
+3) Portage logique Python Et PHP → TS (appel Bedrock + parsing réponse) — 1,5 à 3 j.h
 
-Mais je veux un plan “prod-grade” pour la révocation / user disabled :
-- Définis clairement quelles routes doivent faire une validation renforcée
-- Propose un mécanisme d’introspection ponctuel via user-service (pas à chaque requête)
-- Ajoute un fail-fast validator au boot qui interdit AWS_ENDPOINT_URL et interdit tout endpoint Cognito custom.
-Donne-moi le code NestJS intégrable (guards + jwks cache + interfaces) avec commentaires en anglais.
+Client Bedrock runtime en Node/TS.
+Mapping strict des réponses vers OK/KO + motif.
+Normalisation des erreurs (429/5xx/timeouts) vers erreurs métier/techniques.
+
+4) Robustesse production (synchrone) — 2 à 4 j.h
+
+Timeouts calibrés, retries bornés (ex: 1 retry max), backoff.
+Circuit breaker, bulkhead / limite de concurrence côté service.
+Stratégie d’erreurs : “KO technique, réessayer” vs “KO définitif”.
+
+5) Observabilité — 1 à 2 j.h
+
+Logs structurés sans image (taille, format, latence, code retour Bedrock, motif).
+Metrics : latence p95/p99, taux OK/KO, taux 429/5xx, timeouts.
+
+6) Tests + non-régression fonctionnelle vs script Python — 1,5 à 3 j.h
+
+Tests unitaires (parsing, mapping).
+Jeu d’images de test : idéalement un set anonymisé/autorisé, sinon mocks.
+
+7) Ajustements post-déploiement 0,5 à 1,5 j.h
+
+Total Dev : JH
