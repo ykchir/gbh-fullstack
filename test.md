@@ -1,34 +1,83 @@
-1) Cadrage technique + contrat API + sécurité — 0,5 à 1,5 j.h
-Définition endpoint (payload, taille max, formats), codes erreurs, motifs KO.
-Gestion auth (A definir )
+afin de mettre en place une solution de front pour l'emailing je dois faire l"etude de ce ticket:
+Etude et inventaire sur les outils externe de gestion des Template mails.
 
-2) Création du microservice NestJS (squelette + standards) — 1 à 2 j.h
-Repo/module, Dockerfile, config, healthcheck, versioning.
-Middleware de correlationId / requestId.
-Validation d’entrée (mime, taille, dimensions si dispo).
 
-3) Portage logique Python Et PHP → TS (appel Bedrock + parsing réponse) — 1,5 à 3 j.h
 
-Client Bedrock runtime en Node/TS.
-Mapping strict des réponses vers OK/KO + motif.
-Normalisation des erreurs (429/5xx/timeouts) vers erreurs métier/techniques.
+Détails clés
+Field Tab
+KPI
+Divers
+Description US
 
-4) Robustesse production (synchrone) — 2 à 4 j.h
 
-Timeouts calibrés, retries bornés (ex: 1 retry max), backoff.
-Circuit breaker, bulkhead / limite de concurrence côté service.
-Stratégie d’erreurs : “KO technique, réessayer” vs “KO définitif”.
+Contexte : 
 
-5) Observabilité — 1 à 2 j.h
+Dans la continuité des fonctionnalités proposées par SELFY, un prochain lot portera sur l’intégration de la gestion des templates mails.
+À ce jour, la création ou la modification d’un template mail nécessite une intervention technique directement sur l’asset concerné, impliquant un développement et une mise en production.
 
-Logs structurés sans image (taille, format, latence, code retour Bedrock, motif).
-Metrics : latence p95/p99, taux OK/KO, taux 429/5xx, timeouts.
+Le Service Client (SC) souhaite désormais être autonome sur la gestion des templates mails afin de pouvoir créer, modifier ou activer/désactiver des templates sans dépendre d’une MeP.
 
-6) Tests + non-régression fonctionnelle vs script Python — 1,5 à 3 j.h
+Par ailleurs, Comutitre a récemment mis en place une brique technique centralisée => IRIS permettant la gestion unifiée des différents templates mail utilisés par les assets internes.
 
-Tests unitaires (parsing, mapping).
-Jeu d’images de test : idéalement un set anonymisé/autorisé, sinon mocks.
+Le présent lot vise à proposer un FE SELFY, connecté à IRIS, permettant au SC d’interagir avec cette brique technique pour que les actions de gestion des templates soient prises en compte par l’ensemble des assets durant l’envoi des mails.
 
-7) Ajustements post-déploiement 0,5 à 1,5 j.h
+Voici un récap des besoins SC : ( image jointes)
+Objectif de l’étude
 
-Total Dev : JH
+L’objectif de cette étude est de réaliser un inventaire des solutions existantes “sur étagère”, incluant notamment AWS SES, afin de proposer une solution FE intégrée à SELFY permettant :
+
+d’éviter le développement complet d’un outil de gestion de templates mails from scratch ;
+
+de répondre aux besoins d’autonomie du SC ;
+
+de s’interfacer avec IRIS et la brique technique Comutitre.
+
+L’étude devra permettre d’identifier la solution la plus adaptée parmi trois approches possibles :
+➡️ Solution Comutitre (full SELFY)
+➡️ Solution hybride
+➡️ Solution externe
+
+Périmètre de l’étude
+
+L’étude devra analyser et comparer trois types de solutions :
+
+Solution Comutitre – FE entièrement porté par SELFY
+Développement d’un front spécifique dans SELFY.
+
+Logique métier assurée par IRIS + la brique technique Comutitre.
+
+UI/UX et parcours utilisateur implementés côté SELFY.
+
+Solution Hybride
+Utilisation de composants ou UI préexistants d’un outil tiers.
+
+Intégration partielle dans SELFY pour simplifier le développement.
+
+Connexion à IRIS et à la brique Comutitre.
+
+Solution Externe
+Choisir un outil de gestion de templates mails (ex : AWS SES, Mailjet, SendGrid, etc.).
+
+Connexion de cet outil à IRIS et à la brique Comutitre.
+
+Couverture maximale des besoins SC sans redévelopper des fonctionnalités existantes.
+
+L’étude devra fournir pour chaque solution :
+
+les avantages et limites ;
+
+les impacts sur SELFY, IRIS et la brique technique ;
+
+une estimation de charge (macro-chiffrage) ;
+
+les prérequis techniques ;
+
+un niveau d’adhérence avec les besoins SC.
+
+Livrables attendus
+
+Inventaire détaillé des solutions du marché pertinentes pour la gestion de templates mails.
+
+Comparatif formalisé des trois scénarios (SELFY, hybride, externe).
+
+Recommandation argumentée de la solution cible.
