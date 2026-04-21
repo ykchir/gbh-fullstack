@@ -1,821 +1,443 @@
-# Étude technique & macro-chiffrage  
-## Formulaire hybride d'abonnement iRS SCOL'R  
-### Comparatif Solution 1 (Référentiel BO) vs Solution 2 (Token + DataFactory)
+# Étude & macro-chiffrage – Formulaire hybride IRS Scol'R
+
+Document d'étude préalable présentant deux scénarios cibles pour la mise en place d'un formulaire hybride permettant aux personnes éligibles de souscrire à l'abonnement **IRS Scol'R**. Le formulaire est dit « hybride » : le client le complète depuis son ordinateur, puis l'imprime pour la signature manuscrite, la photo et le RIB, avant envoi postal au partenaire pour saisie dans le SIG.
+
+- **Auteur** : équipe FABRIQUE – Comutitres
+- **Statut** : étude / macro-chiffrage
+- **Échéance de retour** : 15 avril
+- **Périmètre** : solutions 1 et 2 décrites dans les diagrammes de séquence
 
 ---
 
-## 1. Contexte et objectifs
+## 1. Contexte et objectif
 
 ### 1.1 Contexte métier
 
-Dans le cadre de la digitalisation partielle de la souscription à l'abonnement **iRS SCOL'R**, Comutitres, au sein de l'équipe **LA FABRIQUE**, est sollicitée pour produire une **étude technique** et un **macro-chiffrage** concernant la mise en place d'un **formulaire hybride**.
+À la suite du point avec La Fabrique, Jean-Philippe a proposé deux options pour la gestion du formulaire hybride IRS Scol'R. L'équipe La Fabrique doit remonter une estimation de chiffrage.
 
-Le caractère hybride du processus provient du fait que :
+- **Scénario 1** : génération de la RUM au moment de la génération du formulaire PDF pour impression.
+  - TSA prend en charge l'envoi du mail aux clients Scol'R.
+  - Un référentiel doit être créé pour assurer la génération de la RUM avec le numéro du formulaire.
+- **Scénario 2** : génération de la RUM via un token présent dans le lien du formulaire envoyé par mail.
+  - Comutitres doit envoyer le mail aux clients Scol'R (processus TSA → Comutitres à définir pour la transmission des adresses e‑mail).
+  - Un référentiel RUM doit être créé ainsi qu'une génération de Token avec DataFactory.
 
-- le client complète son dossier en ligne depuis un ordinateur ou un terminal mobile ;
-- le formulaire est ensuite généré au format PDF ;
-- le client imprime le document ;
-- il complète la partie papier nécessitant des pièces ou actions manuelles :
-  - signature,
-  - photo,
-  - RIB ;
-- le dossier papier est ensuite envoyé par voie postale au partenaire ;
-- le partenaire procède enfin à la saisie dans le SIG.
+### 1.2 Champs demandés au client pour la souscription
 
-Cette étude compare deux scénarios proposés lors des échanges entre les parties prenantes.
-
-### 1.2 Objectifs de l'étude
-
-Les objectifs sont les suivants :
-
-- analyser les deux solutions proposées sur la base des diagrammes de séquence fournis ;
-- identifier les composants techniques à développer ;
-- évaluer les impacts d'architecture, de sécurité, d'exploitation et de maintenance ;
-- produire un macro-chiffrage cohérent pour une implémentation en **NestJS / Node.js / PostgreSQL** ;
-- formuler une recommandation argumentée et exploitable en comité.
-
----
-
-## 2. Hypothèses structurantes de l'étude
-
-Les hypothèses suivantes sont retenues pour cadrer le chiffrage et éviter toute ambiguïté :
-
-- le volume d'utilisateurs est **faible** ;
-- la solution sera développée en **NestJS / Node.js** ;
-- la base de données sera en **PostgreSQL** ;
-- le formulaire sera exposé via une application web dédiée ;
-- les PDFs seront générés côté backend ;
-- les données sensibles devront être stockées et journalisées conformément aux exigences de sécurité et de conformité ;
-- la saisie finale dans le SIG reste hors périmètre Fabrique ;
-- le processus papier est maintenu ;
-- le chiffrage est un **macro-chiffrage**, et non un engagement forfaitaire détaillé ;
-- la recette métier, les homologations transverses, les dépendances infra et les validations de sécurité peuvent faire évoluer le chiffrage final.
-
----
-
-## 3. Besoin fonctionnel
-
-### 3.1 Finalité
-
-Permettre aux personnes éligibles à l'abonnement **iRS SCOL'R** d'accéder à une page de formulaire, de renseigner leurs informations, puis de télécharger un PDF prérempli à imprimer et signer.
-
-### 3.2 Champs attendus
-
-Le formulaire devra collecter les informations suivantes :
-
-- Référence carte scol'R
-- Nom et prénom du payeur
-- Nom et prénom du porteur
+- Référence carte Scol'R
+- Nom / prénom du payeur et du porteur
 - Date de naissance
-- Adresse e-mail du payeur
-- Adresse e-mail du porteur
+- Adresse e‑mail du payeur
+- Adresse e‑mail du porteur
 - Niveau scolaire
 - Nom de l'établissement
 - Adresse postale de l'établissement
 - Photo du porteur
-- Numéro de client du porteur si déjà existant
-- Numéro de client du payeur si déjà existant
+- N° de client du porteur (si déjà existant)
+- N° de client du payeur (si déjà existant)
 - Mandat SEPA et RUM
 - RIB
-- Signature
+- Signature (manuscrite après impression)
 
-### 3.3 Remarques fonctionnelles
+### 1.3 Règle de construction de la RUM
 
-Plusieurs champs nécessitent une clarification métier avant conception détaillée :
+Le n° de RUM est formé de **33 ou 35 caractères** obtenus par concaténation de :
 
-- la photo est-elle déposée en ligne, collée sur le formulaire papier, ou les deux ;
-- le RIB est-il téléversé en ligne, fourni uniquement en papier, ou les deux ;
-- la signature reste manuscrite, donc le PDF devra inclure les zones réservées correspondantes ;
-- certains champs peuvent être préremplis selon le scénario retenu.
+1. **Indicateur de continuité APA en Mandat** :
+   - `++` si l'indicateur de mandat SEPA migré est à « Oui »
+   - vide s'il s'agit de la création d'un nouveau mandat
+2. **Code ICS Comutitres** : `FR42ZZZ457385`
+3. **Référence du contrat** commercial ou tiers payant sur **14 caractères** :
+   - remplacer les `_` éventuels par `-`
+   - compléter à gauche par des `0` pour atteindre 14 caractères
+4. **Code produit** sur **2 caractères** : `01` (iRS), `02` (iRE), `04` (NVA), `05` (NL+), complété à gauche par `0` si besoin
+5. **Indice** sur **2 caractères** : distingue deux mandats sur un même contrat commercial ; commence à `00`, complété à gauche par `0`
+6. **Clé de contrôle** sur **2 chiffres** : `97 – modulo97(chaîne_numérique)`
+   - Les `++` sont remplacés par `11` pour le calcul
+   - L'ICS n'est **pas** pris en compte
+   - Les `_` dans la référence du contrat ne sont **pas** considérés
 
----
-
-## 4. Architecture cible de référence
-
-Compte tenu du contexte annoncé, l'architecture cible raisonnable est la suivante.
-
-### 4.1 Socle technique
-
-- **Frontend** : application web formulaire
-- **Backend** : API NestJS
-- **Runtime** : Node.js
-- **Base de données** : PostgreSQL
-- **Génération de PDF** : service backend NestJS
-- **Emailing** : hors Fabrique en solution 1, intégré via outillage externe en solution 2
-- **Stockage documentaire** : selon arbitrage, en base ou via stockage objet si besoin futur
-
-### 4.2 Découpage logique recommandé
-
-#### Frontend
-- affichage du formulaire ;
-- validation de premier niveau ;
-- gestion de l'expérience utilisateur ;
-- gestion de l'accès par lien simple ou par token.
-
-#### Backend NestJS
-- endpoint d'ouverture du formulaire ;
-- endpoint de soumission ;
-- endpoint de génération du PDF ;
-- service métier de génération de RUM ;
-- service de validation métier ;
-- service de traçabilité et journalisation.
-
-#### PostgreSQL
-- persistance des formulaires ;
-- persistance des RUM générées ;
-- historisation des statuts ;
-- gestion des tokens et de leur consommation en solution 2.
-
-### 4.3 Principes d'architecture recommandés
-
-Pour sécuriser la trajectoire, il est recommandé de séparer dès la V1 :
-
-- le **service de génération RUM** ;
-- le **service de génération PDF** ;
-- le **module formulaire** ;
-- le **module de persistance / référentiel**.
-
-Cette séparation permettra une évolution future vers le scénario 2 sans refonte lourde.
-
----
-
-## 5. Algorithme de génération de la RUM
-
-### 5.1 Règles métier rappelées
-
-La RUM est un identifiant SEPA de **33 ou 35 caractères**, obtenu par concaténation de :
-
-1. un indicateur de migration :
-   - `"++"` si le mandat SEPA migré est à `Oui`,
-   - vide sinon ;
-2. le code ICS de COMUTITRES :
-   - `FR42ZZZ457385`
-3. la référence du contrat commercial ou du contrat tiers payant sur **14 caractères** :
-   - compléter à gauche avec des zéros si nécessaire ;
-   - remplacer les caractères `_` par `-` dans la RUM finale ;
-4. le code produit sur **2 caractères** :
-   - `01` pour iRS,
-   - `02` pour iRE,
-   - `04` pour NVA,
-   - `05` pour NL+ ;
-5. un indice sur **2 caractères** :
-   - commence à `00`,
-   - permet de distinguer plusieurs mandats sur un même contrat ;
-6. une clé de contrôle sur **2 chiffres** :
-   - calculée par `97 - modulo97`.
-
-### 5.2 Particularités du calcul
-
-Pour la clé de contrôle :
-
-- les `++` sont remplacés par `11` ;
-- l'ICS n'est pas pris en compte ;
-- les `_` éventuels dans la référence contrat ne sont pas considérés dans le calcul.
-
-### 5.3 Exemple fourni
-
-Pour le contrat de référence `000987654_3` :
-
+**Exemple** — Contrat Navigo Annuel référence `000987654_3` :
+- RUM générée : `++FR42ZZZ457385000000987654-30400yy`
+- Chaîne numérique pour le calcul de `yy` : `1100000098765430400`
+- `yy = 97 – modulo97(1100000098765430400) = 97 – 69 = 28`
 - RUM finale : `++FR42ZZZ457385000000987654-3040028`
-- chaîne numérique utilisée : `1100000098765430400`
-- calcul :
-  - `Modulo97(1100000098765430400) = 69`
-  - `97 - 69 = 28`
-
-### 5.4 Enjeu technique majeur
-
-La génération de RUM doit être :
-
-- **unique** ;
-- **déterministe** ;
-- **atomique** ;
-- **traçable**.
-
-Ce point est critique car il touche à un identifiant bancaire de mandat.  
-En conséquence, la génération doit impérativement être protégée contre les problèmes de concurrence.
-
-### 5.5 Recommandation d'implémentation
-
-La génération doit être portée par un **service métier dédié** avec :
-
-- transaction PostgreSQL ;
-- verrouillage logique ou requête atomique sur l'indice ;
-- historique de la RUM générée ;
-- tests unitaires exhaustifs ;
-- tests d'intégration sur cas de concurrence.
 
 ---
 
-## 6. Solution 1 — Référentiel BO / Génération RUM à la demande
+## 2. Périmètre commun aux deux solutions
 
-### 6.1 Description du flux
+Quel que soit le scénario retenu, les composants suivants sont à livrer. Le chiffrage s'appuie sur une **forte réutilisation du socle SELFY existant** (NestJS, PostgreSQL, libs `logger` FE1382, `config`, `utils`, `auth`, `swagger`, `bootstrap`, pipelines CI/CD GitLab, déploiement Docker).
 
-Dans cette solution :
+### 2.1 Formulaire web (front)
 
-1. TSA envoie l'email contenant le lien vers le formulaire ;
-2. le client clique sur le lien ;
-3. il accède à la page formulaire ;
-4. il complète les informations demandées ;
-5. au clic sur le téléchargement PDF, le backend appelle le service de génération de RUM ;
-6. le backend génère une nouvelle RUM via le référentiel ;
-7. le PDF est produit avec la RUM ;
-8. le client imprime le document ;
-9. il signe et joint les pièces nécessaires ;
-10. il envoie le dossier papier au partenaire ;
-11. le partenaire saisit le dossier dans le SIG.
+- Page publique (hors authentification BO) responsive, accessible via un lien spécifique.
+- Validation front (champs obligatoires, formats, retour d'erreur instantané).
+- Upload photo du porteur (format, poids, preview).
+- Contrôle IBAN / BIC (modulo 97 IBAN).
+- Accessibilité RGAA : **audit externe hors périmètre Build Fabrique** ; bonnes pratiques appliquées dans le code.
+- Internationalisation : structure FR uniquement en V1.
 
-### 6.2 Caractéristiques
+### 2.2 Back-office / API (NestJS – socle SELFY)
 
-#### Avantages
-- architecture plus simple ;
-- moins de dépendances externes ;
-- mise en œuvre plus rapide ;
-- responsabilité emailing hors Fabrique ;
-- bonne adéquation à un faible volume.
+- Endpoints d'affichage du formulaire (GET) et de soumission (POST).
+- Endpoint de génération du PDF (template pré-rempli + photo + RUM).
+- **Référentiel RUM** (PostgreSQL) – structure commune : `id`, `rum`, `indice`, `code_produit`, `ref_contrat`, `ics`, `cle_modulo97`, `indicateur_migration`, `client_ref`, `status`, `token` (scénario 2 uniquement), `created_at`, `used_at`.
+- Implémentation de l'algorithme RUM (section 1.3) comme **service métier dédié** : transaction PostgreSQL, verrou logique sur l'indice, historique, tests unitaires exhaustifs, tests de concurrence.
+- Contrainte d'unicité `(ref_contrat, code_produit, indice)` + verrou transactionnel.
+- Stockage du formulaire soumis + horodatage + statut (brouillon / validé / PDF généré).
+- Anti-abus : rate limiting, CAPTCHA, protection anti-replay.
+- **PDF non modifiable** après génération (aplatissement des champs, pas d'interactivité résiduelle).
+- Observabilité : logs au format **FE1382 via la lib `logger` SELFY** (Winston), corrélation `correlation_id` / `request_id`.
 
-#### Inconvénients
-- lien potentiellement non nominatif ou faiblement sécurisé ;
-- aucune pré-identification native du client ;
-- RUM générée tardivement, donc possible consommation inutile si abandon après génération ;
-- traçabilité plus faible sur l'origine du formulaire.
+### 2.3 Génération PDF
 
-### 6.3 Composants à développer
+- Template PDF avec zones pré-remplies + photo + RUM.
+- Librairie à arbitrer (pdfkit, puppeteer). Hypothèse de chiffrage : **template fourni par le métier** ; sinon rallonger le lot PDF.
+- Archivage du PDF (S3) avec URL signée à durée limitée.
+- **Archivage légal mandats SEPA** à cadrer avec le DPO (durée de conservation réglementaire) — point listé, **mise en œuvre hors périmètre Build Fabrique**.
 
-- page formulaire ;
-- validation front et back ;
-- module NestJS de soumission ;
-- service de génération PDF ;
-- service de génération de RUM ;
-- référentiel PostgreSQL pour les RUM ;
-- journalisation ;
-- gestion d'erreurs.
+### 2.4 Socle transverse réutilisé depuis SELFY
 
-### 6.4 Points de vigilance
+- Documentation OpenAPI (lib `swagger` SELFY).
+- Tests unitaires (l'algorithme RUM est critique) + intégration sur cas de concurrence.
+- Observabilité (logs FE1382, métriques, alertes Datadog – cohérent avec le plan `docs/plan/plan-logging-unifie-tickets.md`).
+- CI/CD (pipeline GitLab, Docker, déploiement cible) – patterns existants SELFY.
 
-#### Sécurité
-Même avec un petit volume, un accès par lien direct doit être protégé au minimum par :
+### 2.5 Éléments explicitement exclus du périmètre Build Fabrique
 
-- captcha ou anti-bot léger ;
-- rate limiting côté API ;
-- validation stricte des entrées ;
-- journalisation des accès.
+Ces items sont identifiés mais **non chiffrés** dans cette étude. Ils restent à porter par d'autres acteurs ou à chiffrer à part.
 
-#### RUM consommée à tort
-Si la RUM est générée lors du téléchargement du PDF mais que le client n'envoie jamais le dossier, la RUM reste consommée.  
-Ce n'est pas forcément bloquant fonctionnellement, mais ce comportement doit être assumé et documenté.
-
-#### UX
-Le client repart d'une page générique, sans personnalisation ni préremplissage.
+- Audit RGAA externe complet.
+- DPIA RGPD et conformité (DPO).
+- Recette métier IDFM / TSA (UAT élargie).
+- Conduite du changement, formation utilisateurs.
+- Support post go-live et MCO.
+- Homologation sécurité transverse.
+- Définition / négociation du processus d'échange inter-équipes (TSA → Comutitres en S2).
+- Contractualisation Sarbacane (en S2).
 
 ---
 
-## 7. Solution 2 — Référentiel RUM + Token
+## 3. Spécificités Solution 1 — Envoi mail par TSA, RUM à la génération PDF
 
-### 7.1 Description du flux
+### 3.1 Flux fonctionnel
 
-Dans cette solution :
+1. IDFM envoie au client un courriel Tarif iRS (via TSA).
+2. Le client clique sur le lien et le formulaire s'affiche.
+3. Le client complète le formulaire — contrôle des champs obligatoires.
+4. Au clic **« Télécharger PDF »** :
+   - le BO interroge le référentiel RUM (nouvel indice pour le contrat),
+   - génère la RUM,
+   - produit le PDF,
+   - retourne le PDF au client.
+5. Le client imprime, signe, et envoie le formulaire papier par voie postale au partenaire.
+6. Le partenaire réceptionne et saisit les informations dans le SIG.
 
-1. IDFM ou TSA transmet une liste d'adresses e-mail ;
-2. un composant de préparation de campagne génère pour chaque client :
-   - une RUM,
-   - un token unique,
-   - un lien personnalisé ;
-3. l'outil d'emailing envoie les messages ;
-4. le client clique sur un lien personnalisé ;
-5. le backend valide le token ;
-6. le client complète le formulaire ;
-7. le PDF est généré avec la RUM déjà préparée ;
-8. le client imprime, signe et envoie le dossier papier ;
-9. le partenaire saisit dans le SIG.
+### 3.2 Impacts techniques
 
-### 7.2 Caractéristiques
+- **Lien générique** : pas de personnalisation client → le formulaire est exposé publiquement, le client saisit lui-même sa référence carte Scol'R.
+- **Sécurité accrue nécessaire** : sans lien personnalisé, CAPTCHA + validation forte de la référence carte contre un référentiel TSA obligatoires (sinon création de RUM orphelines possibles).
+- **Dépendance TSA** : envoi mail géré côté TSA (aucun dev côté Comutitres sur cette brique).
+- **Référentiel RUM** alimenté au runtime (à la volée), sans pré-génération.
 
-#### Avantages
-- meilleur contrôle d'accès ;
-- traçabilité plus forte ;
-- possibilité de préremplissage ;
-- meilleure maîtrise du parcours utilisateur ;
-- plus extensible à long terme.
 
-#### Inconvénients
-- complexité plus forte ;
-- besoin d'un mécanisme de génération et stockage des tokens ;
-- responsabilité accrue sur l'emailing ;
-- plus de dépendances et de gouvernance inter-équipes.
+### 3.3 Macro-chiffrage Solution 1
 
-### 7.3 Recommandation technique sur le token
+Unité : **jours-homme (j/h)**. Fourchette basse / haute par lot. Périmètre **Build Fabrique** (conception technique, dev, tests unitaires et d'intégration, QA technique, pilotage léger). Hors audit RGAA, DPIA, UAT métier, support post go-live.
 
-Le terme JWT a été évoqué dans les propositions initiales, mais dans ce contexte précis, avec un faible volume et un besoin simple, il est préférable de rester pragmatique :
+| # | Lot | Détail | Charge |
+|---:|---|---|---:|
+| 1 | Cadrage technique & conception | specs techniques, modèle de données, stratégie RUM, ADR léger | 3 – 4 |
+| 2 | Frontend formulaire | page, validations, upload photo, UX | 4 – 6 |
+| 3 | Backend NestJS (endpoints + persistance) | GET/POST formulaire, persistance PostgreSQL, réutilisation libs SELFY (`config`, `utils`, `swagger`, `logger`) | 5 – 7 |
+| 4 | Service RUM (algo + transaction + tests) | modulo 97, verrou Postgres, historique, tests unitaires + concurrence | 4 – 6 |
+| 5 | Génération PDF | template, fusion données + photo + RUM, aplatissement | 3 – 5 |
+| 6 | Sécurité minimale (CAPTCHA, rate-limit, anti-bot, contrôle réf. Scol'R) | protections formulaire public | 2 – 3 |
+| 7 | QA technique & tests d'intégration | scénarios bout en bout Fabrique, cas de bord RUM, cas PDF | 3 – 5 |
+| 8 | Pilotage & coordination | synchros, ajustements, support recette Fabrique | 2 – 3 |
+| | **Total brut** |  | **26 – 39** |
+| | **Marge 15 – 20 %** (incertitudes cadrage / intégration) |  | **+4 – +8** |
+| | **Total macro retenu** |  | **30 – 47 j/h** |
 
-- soit un **token opaque** aléatoire stocké en base ;
-- soit un **JWT signé** contenant des métadonnées minimales.
-
-Pour une première implémentation sobre et robuste, la recommandation est :
-
-- **token opaque aléatoire** ;
-- stockage PostgreSQL ;
-- date d'expiration ;
-- statut `consommé / non consommé` ;
-- possibilité de révocation ;
-- lien unitaire associé à un dossier donné.
-
-Ce choix évite de déporter trop d'information sensible dans l'URL et simplifie l'exploitation.
-
-### 7.4 Composants à développer
-
-- tout le périmètre de la solution 1, sauf génération tardive de RUM ;
-- service de génération de token ;
-- référentiel token + statut ;
-- interface ou batch d'alimentation des listes d'envoi ;
-- intégration emailing ;
-- logique de consommation de token ;
-- gestion de l'expiration.
-
-### 7.5 Points de vigilance
-
-#### Anti-replay
-Un même lien ne doit pas permettre la génération répétée de formulaires signables sans contrôle.
-
-#### Gouvernance
-Il faudra définir précisément :
-
-- qui fournit les adresses e-mail ;
-- à quelle fréquence ;
-- sous quel format ;
-- qui relance les clients ;
-- qui gère les erreurs d'envoi.
-
-#### Exploitation
-Toute anomalie sur la génération préalable des tokens peut bloquer la campagne complète.
+**Hypothèses d'efficacité mobilisées** :
+- réutilisation du socle SELFY (NestJS, logger FE1382, config, validators, swagger, CI/CD, Docker) ;
+- volume cible ≤ 100 utilisateurs → pas d'infra dimensionnée ni de tests de charge lourds ;
+- iRS uniquement en V1 → un seul code produit (`01`) à gérer dans l'algorithme RUM ;
+- template PDF fourni par le métier.
 
 ---
 
-## 8. Modèle de données recommandé
+## 4. Spécificités Solution 2 — Envoi mail par Comutitres via DataFactory + Sarbacane
 
-### 8.1 Table `subscription_form`
+### 4.1 Flux fonctionnel
 
-Contient les données du formulaire :
+1. IDFM envoie à **DataFactory** la liste des courriels clients Tarif iRS.
+2. DataFactory :
+   - récupère la liste des courriels client,
+   - **génère la RUM par client** (pré-génération),
+   - crée un **token** associé à la RUM,
+   - construit la liste `courriel + lien + token`,
+   - envoie la liste de diffusion à **Sarbacane**.
+3. Sarbacane envoie les courriels individualisés au client (lien + token).
+4. Le client clique sur le lien tokenisé → affichage du formulaire (RUM liée au token).
+5. Le client complète, contrôle des champs obligatoires.
+6. Génération PDF directe (la RUM est déjà connue, pas d'appel au référentiel au moment du téléchargement).
+7. Le client imprime, signe, envoie le formulaire papier par voie postale.
+8. Partenaire réceptionne et saisit dans le SIG.
 
-- id
-- reference_carte_scolr
-- nom_payeur
-- prenom_payeur
-- nom_porteur
-- prenom_porteur
-- date_naissance
-- email_payeur
-- email_porteur
-- niveau_scolaire
-- nom_etablissement
-- adresse_etablissement
-- numero_client_porteur
-- numero_client_payeur
-- rum
-- statut_formulaire
-- pdf_genere
-- date_creation
-- date_modification
+### 4.2 Impacts techniques
 
-### 8.2 Table `rum_registry`
+- **DataFactory** : pipeline à industrialiser (job batch, ordonnancement, reprise sur erreur, idempotence). Outil existant côté Comutitres — **côté Fabrique, seule l'exposition de l'API RUM et le format d'échange sont chiffrés**.
+- **Sarbacane** : routeur mail SaaS. Côté Fabrique, périmètre chiffré = intégration applicative de l'envoi de liste (API / export) ; **contractualisation et délivrabilité hors périmètre**.
+- **Token** : recommandation **token opaque aléatoire** persisté en base PostgreSQL (expiration, usage unique, statut `active / used / revoked`). Choix plus sobre qu'un JWT pour un faible volume et un besoin simple ; évite de déporter trop d'information dans l'URL et simplifie la révocation.
+- **Processus métier TSA → Comutitres** : à définir (fréquence, format d'échange SFTP / API, consentement RGPD) — **cadrage hors périmètre Fabrique**, seule l'interface technique d'ingestion est chiffrée.
+- **Double référentiel** : table RUM + table token.
+- **Sécurité renforcée** : lien personnalisé = risque en cas de divulgation → expiration obligatoire, non-réutilisation (anti-rejeu), protection brute-force.
+- **UX** : pas de saisie manuelle de la référence carte Scol'R → parcours fluide, moins d'erreurs.
 
-Permet la génération et la traçabilité des RUM :
+### 4.3 Macro-chiffrage Solution 2
 
-- id
-- reference_contrat
-- code_produit
-- indice
-- indicateur_migration
-- rum_complete
-- cle_controle
-- statut
-- date_generation
-- date_utilisation
-- form_id
+Unité : **jours-homme (j/h)**. Fourchette basse / haute par lot. Périmètre **Build Fabrique**.
 
-### 8.3 Table `form_access_token` (solution 2)
+| # | Lot | Détail | Charge |
+|---:|---|---|---:|
+| 1 | Cadrage technique & conception | specs, modèle de données, stratégie RUM + token, interface DataFactory | 4 – 5 |
+| 2 | Frontend formulaire | page, lecture / passage du token, validations, UX | 5 – 7 |
+| 3 | Backend NestJS (endpoints + persistance + validation token) | GET/POST formulaire, consommation token, persistance PostgreSQL | 6 – 8 |
+| 4 | Service RUM (algo + transaction + tests) | idem Solution 1 | 4 – 6 |
+| 5 | Service Token (génération + stockage + expiration + consommation) | token opaque, table `form_access_token`, statuts | 3 – 5 |
+| 6 | Génération PDF | template, fusion données + photo + RUM | 3 – 5 |
+| 7 | Préparation campagne & intégration emailing | interface DataFactory / API RUM + API Sarbacane (envoi liste), mapping, gestion erreurs de lot | 5 – 8 |
+| 8 | Sécurité & anti-rejeu | statuts token, contrôles anti-réutilisation, rate-limit, audit trail | 3 – 5 |
+| 9 | QA technique & tests d'intégration | scénarios bout en bout, cas d'expiration, lien déjà utilisé, régénération, cas de bord RUM | 4 – 6 |
+| 10 | Pilotage & coordination | synchros, coordination inter-équipes Fabrique (Sarbacane / DataFactory), support recette | 3 – 4 |
+| | **Total brut** |  | **40 – 59** |
+| | **Marge 15 – 20 %** (incertitudes cadrage / intégration) |  | **+6 – +12** |
+| | **Total macro retenu** |  | **46 – 71 j/h** |
 
-- id
-- token
-- email
-- rum
-- expires_at
-- consumed_at
-- status
-- metadata
-- created_at
-
-### 8.4 Table `audit_log`
-
-- id
-- event_type
-- event_payload
-- actor
-- ip
-- user_agent
-- created_at
+**Hypothèses d'efficacité mobilisées** :
+- mêmes hypothèses que Solution 1 (socle SELFY, volume ≤ 100, iRS seul, template PDF fourni) ;
+- DataFactory et Sarbacane existent déjà côté Comutitres : seul le **contrat d'interface** (API / formats) est chiffré côté Fabrique ;
+- gouvernance inter-équipes (TSA → Comutitres) et contractualisation Sarbacane : **hors périmètre Fabrique**.
 
 ---
 
-## 9. Sécurité et conformité
-
-### 9.1 Exigences minimales communes
-
-Même avec un faible volume, la sensibilité des données impose a minima :
-
-- validation stricte côté backend ;
-- sanitation des entrées ;
-- journalisation des événements significatifs ;
-- HTTPS obligatoire ;
-- contrôle des tailles et formats de fichiers si upload ;
-- gestion rigoureuse des erreurs ;
-- masquage des données sensibles dans les logs.
-
-### 9.2 Points spécifiques
-
-#### Solution 1
-- protection anti-bot ;
-- limitation de débit ;
-- surveillance des abus sur URL publique.
-
-#### Solution 2
-- expiration du token ;
-- révocation ;
-- anti-rejeu ;
-- non-réutilisation d'un token consommé.
-
-### 9.3 RGPD
-
-Les éléments suivants doivent être explicitement cadrés :
-
-- durée de conservation des données ;
-- durée de conservation des pièces ;
-- politique de purge ;
-- accès aux données ;
-- journalisation conforme sans surexposition des données sensibles.
-
----
-
-## 10. Exploitation / RUN
-
-Une étude crédible doit intégrer l'exploitation.
-
-### 10.1 Journaux et supervision
-
-Prévoir :
-
-- logs applicatifs ;
-- logs d'erreurs techniques ;
-- logs d'événements métier ;
-- indicateurs de volumétrie ;
-- alertes en cas d'échec de génération PDF ou RUM.
-
-### 10.2 Indicateurs utiles
-
-- nombre de formulaires démarrés ;
-- nombre de PDFs générés ;
-- nombre de RUM générées ;
-- nombre de tokens consommés ;
-- nombre d'échecs ;
-- délais moyens de génération.
-
-### 10.3 Support
-
-Le support devra pouvoir identifier :
-
-- un formulaire ;
-- une RUM ;
-- un token ;
-- un horodatage de génération ;
-- un statut de traitement.
-
----
-
-## 11. Analyse comparative synthétique
+## 5. Synthèse comparative
 
 | Critère | Solution 1 | Solution 2 |
 |---|---|---|
-| Complexité | Faible à modérée | Modérée à forte |
-| Délai de mise en œuvre | Rapide | Plus long |
-| Dépendances externes | Limitées | Plus nombreuses |
-| Sécurité d'accès | Moyenne | Bonne |
-| Traçabilité | Moyenne | Forte |
-| Maintenance | Simple | Plus structurée |
-| Adaptation petit volume | Très bonne | Bonne |
-| Scalabilité future | Moyenne | Meilleure |
-| Préremplissage / personnalisation | Faible | Possible |
-| Risque projet | Modéré | Plus élevé |
+| Complexité technique globale | Faible à modérée | Modérée à forte (DataFactory + Sarbacane + tokens) |
+| Nouveaux composants | Référentiel RUM | Référentiel RUM + tokens + interface DataFactory + intégration Sarbacane |
+| Charge macro Build Fabrique | **30 – 47 j/h** | **46 – 71 j/h** |
+| Coût de run | Faible | Modéré (pipeline batch + emailing à maintenir) |
+| Expérience utilisateur | Moyenne (saisie réf. carte par le client) | Meilleure (lien personnalisé, pré-remplissage possible) |
+| Sécurité d'accès | Exposition publique → CAPTCHA + contrôle réf. carte | Lien personnalisé + token à durée limitée |
+| Traçabilité | Moyenne | Forte (token nominatif + audit trail) |
+| Dépendances externes | TSA (envoi mail) | TSA (liste mail) + Sarbacane + DataFactory |
+| Dépendances processus | Faibles | Fortes (nouveau processus TSA → Comutitres) |
+| Adaptation ≤ 100 utilisateurs | Très bonne | Bonne (surdimensionnée si volume reste faible) |
+| Scalabilité future | Moyenne | Meilleure (industrialisation campagne) |
+| Risque projet | Modéré | Plus élevé (intégrations multiples) |
 
 ---
 
-## 12. Macro-chiffrage
+## 6. Risques et points de vigilance
 
-### 12.1 Méthodologie
+### 6.1 Communs
 
-Le chiffrage est exprimé en **jours.homme** sur la base d'un contexte de faible volumétrie, d'une stack NestJS / Node.js / PostgreSQL, et d'une implémentation sobre.
+- **Algorithme RUM** : une erreur de calcul modulo 97 entraîne un rejet par l'ACE → batterie de tests dédiée (cas `_` dans la référence, cas `++` migration SEPA, cas `00` à `99` d'indice). En V1 iRS seul, le périmètre de test est réduit (code produit `01`).
+- **Unicité de l'indice** par contrat commercial : verrou transactionnel + contrainte `UNIQUE(ref_contrat, code_produit, indice)`.
+- **Photo porteur** : format, taille max, stockage S3, contrôle anti-malware.
+- **PDF non modifiable** après génération (aplatissement des champs) pour éviter toute falsification avant signature.
+- **Réversibilité si rejet ACE** : procédure d'annulation / régénération de RUM à prévoir en exploitation (runbook).
+- **Archivage légal mandats SEPA** : durée de conservation à cadrer avec le DPO (hors périmètre Fabrique mais bloquant en prod).
+- Ambiguïtés métier à lever avant build : gestion de la photo (en ligne / papier / les deux), gestion du RIB, modèle exact du PDF cible.
 
-Les charges incluent :
+### 6.2 Solution 1
 
-- conception technique ;
-- développement ;
-- tests unitaires ;
-- tests d'intégration ;
-- QA technique ;
-- pilotage léger.
+- Saisie de la référence carte Scol'R par le client → risque de **création de RUM orphelines** si pas de contrôle strict contre un référentiel TSA. **Bloquant** si TSA ne fournit pas d'API de vérification.
+- Formulaire public : risque bot / spam → CAPTCHA (reCAPTCHA v3 ou hCaptcha) + rate-limit.
+- **RUM consommée à tort** si le client génère le PDF mais n'envoie jamais le dossier papier. Comportement à assumer et documenter.
+- Lien faiblement personnalisé : traçabilité plus faible sur l'origine du formulaire.
 
-Les charges n'incluent pas :
+### 6.3 Solution 2
 
-- recette métier complète ;
-- homologation de sécurité transverse ;
-- déploiement production élargi ;
-- conduite du changement ;
-- support post go-live.
-
----
-
-### 12.2 Solution 1 — Macro-chiffrage détaillé
-
-#### Lot 1 — Cadrage technique et conception
-- analyse détaillée
-- spécifications techniques
-- modèle de données
-- stratégie RUM
-
-**Charge estimée : 3 à 4 j.h**
-
-#### Lot 2 — Développement formulaire frontend
-- page formulaire
-- validations
-- parcours utilisateur
-
-**Charge estimée : 4 à 6 j.h**
-
-#### Lot 3 — Développement backend NestJS
-- endpoints
-- validations métier
-- persistance PostgreSQL
-
-**Charge estimée : 5 à 7 j.h**
-
-#### Lot 4 — Service de génération RUM
-- algorithme
-- tests unitaires
-- gestion transactionnelle PostgreSQL
-
-**Charge estimée : 4 à 6 j.h**
-
-#### Lot 5 — Génération PDF
-- templating
-- intégration des données
-- génération du document
-
-**Charge estimée : 3 à 5 j.h**
-
-#### Lot 6 — Journalisation / sécurité minimale / gestion erreurs
-- audit
-- rate limiting
-- sécurisation des entrées
-
-**Charge estimée : 2 à 3 j.h**
-
-#### Lot 7 — QA technique et tests d'intégration
-- scénarios fonctionnels
-- vérifications non-régression
-- cas de bord
-
-**Charge estimée : 4 à 6 j.h**
-
-#### Lot 8 — Pilotage / coordination
-- synchronisation
-- support recette
-- ajustements
-
-**Charge estimée : 2 à 3 j.h**
-
-### Total Solution 1
-
-**Charge brute estimée : 27 à 40 j.h**
-
-Compte tenu des incertitudes classiques de cadrage et d'intégration, il est recommandé d'appliquer une marge de **15 à 20 %**.
-
-**Charge macro retenue : 31 à 48 j.h**
+- **DataFactory** : outil interne Comutitres ; validation de la disponibilité et du format d'échange.
+- **Sarbacane** : contractualisation, quota, délivrabilité (SPF / DKIM / DMARC) — **hors périmètre Fabrique**.
+- **Token** : choix token opaque vs JWT. En contexte faible volume + besoin de révocation simple, **recommandation token opaque** persisté en base (cf. §4.2).
+- **Anti-rejeu** : un même lien ne doit pas permettre la régénération de plusieurs formulaires signables sans contrôle.
+- **Sensibilité à la qualité des listes reçues** : une anomalie sur la préparation de campagne peut bloquer l'envoi global.
+- **Processus TSA → Comutitres** : chantier fonctionnel à part pouvant retarder la mise en route.
 
 ---
 
-### 12.3 Solution 2 — Macro-chiffrage détaillé
+## 7. Hypothèses de chiffrage
 
-#### Lot 1 — Cadrage technique et conception
-- analyse détaillée
-- spécifications techniques
-- modèle de données
-- stratégie RUM + token
+Les hypothèses suivantes cadrent le macro-chiffrage. Toute remise en cause implique un re-chiffrage.
 
-**Charge estimée : 4 à 5 j.h**
-
-#### Lot 2 — Développement formulaire frontend
-- page formulaire
-- lecture du token
-- gestion d'accès
-- validations
-
-**Charge estimée : 5 à 7 j.h**
-
-#### Lot 3 — Développement backend NestJS
-- endpoints
-- validation token
-- persistance
-- logique de consommation
-
-**Charge estimée : 6 à 8 j.h**
-
-#### Lot 4 — Service RUM
-- génération
-- persistance
-- traçabilité
-
-**Charge estimée : 4 à 6 j.h**
-
-#### Lot 5 — Service token
-- génération
-- stockage
-- expiration
-- consommation
-
-**Charge estimée : 4 à 6 j.h**
-
-#### Lot 6 — Génération PDF
-- templating
-- intégration
-- génération
-
-**Charge estimée : 3 à 5 j.h**
-
-#### Lot 7 — Préparation des campagnes / import liste / intégration emailing
-- ingestion des adresses
-- mapping
-- préparation des liens
-- gestion des erreurs de lot
-
-**Charge estimée : 4 à 7 j.h**
-
-#### Lot 8 — Journalisation / sécurité / anti-replay
-- audit
-- statuts
-- sécurisation du lien
-- contrôles anti-réutilisation
-
-**Charge estimée : 3 à 5 j.h**
-
-#### Lot 9 — QA technique et tests d'intégration
-- scénarios fonctionnels
-- cas d'expiration
-- cas de lien déjà utilisé
-- cas de régénération
-
-**Charge estimée : 5 à 7 j.h**
-
-#### Lot 10 — Pilotage / coordination
-- synchronisation
-- support recette
-- coordination inter-équipes
-
-**Charge estimée : 2 à 4 j.h**
-
-### Total Solution 2
-
-**Charge brute estimée : 40 à 60 j.h**
-
-Avec une marge de **15 à 20 %** :
-
-**Charge macro retenue : 46 à 72 j.h**
+1. **Volume cible ≤ 100 utilisateurs** en V1 → pas d'infra dimensionnée pour montée en charge, pas de tests de performance lourds, PostgreSQL mutualisé.
+2. **Cible V1 restreinte au produit iRS** (code produit `01`) → un seul cas à implémenter dans l'algorithme RUM.
+3. **Forte réutilisation du socle SELFY** : NestJS, PostgreSQL, libs `logger` (FE1382 / Winston), `config`, `utils`, `auth`, `swagger`, `bootstrap`, pipelines CI/CD GitLab, Docker, Datadog, patterns CQRS / DDD.
+4. **Chiffrage Build Fabrique strict** : conception technique, développement, tests unitaires et d'intégration, QA technique, pilotage léger.
+5. **Explicitement exclus** : audit RGAA externe, DPIA RGPD, recette métier IDFM / TSA, homologation sécurité transverse, conduite du changement, formation utilisateurs, support post go-live, contractualisation Sarbacane, cadrage du processus TSA → Comutitres.
+6. Template PDF fourni par le métier.
+7. Signature numérique hors scope V1 (signature papier après impression).
+8. Pas de paiement en ligne dans le scope (RIB collecté, prélèvement géré en aval).
+9. 1 j/h = 7 h productives. Marge de **15 – 20 %** intégrée dans les totaux pour absorber l'incertitude amont.
+10. Environnements cibles : dev, recette, prod.
+11. Pas de reprise de données historiques (démarrage à blanc).
+12. Le macro-chiffrage n'est pas un engagement forfaitaire détaillé ; il pourra évoluer à l'issue d'un atelier de cadrage détaillé et d'un spike technique RUM.
 
 ---
 
-## 13. Analyse des risques
+## 8. Éléments de décision pour le comité de pilotage
 
-### 13.1 Risques communs
+**Le choix entre Solution 1 et Solution 2 relève du comité de pilotage.** Cette section fournit les critères de décision sans trancher.
 
-- ambiguïtés métier sur le périmètre exact du formulaire ;
-- validation tardive du modèle PDF ;
-- comportement attendu sur la photo, le RIB et la signature ;
-- sous-estimation des exigences de sécurité.
+### 8.1 Critères pouvant orienter vers la Solution 1
 
-### 13.2 Risques spécifiques solution 1
+- Priorité donnée à la **rapidité de mise en œuvre** et à la **maîtrise de la charge**.
+- **Volume faible confirmé** (≤ 100 utilisateurs) et absence de prévision de forte croissance à court terme.
+- Acceptation de la saisie de la référence carte Scol'R par le client, sous réserve d'un contrôle serveur (API TSA).
+- Envoi mail déjà pris en charge par TSA, sans besoin de reprise côté Comutitres.
+- Acceptation du comportement « RUM consommée même en cas d'abandon après génération PDF ».
 
-- lien trop ouvert ;
-- génération inutile de RUM ;
-- difficulté de suivi nominatif ;
-- expérience utilisateur moins maîtrisée.
+### 8.2 Critères pouvant orienter vers la Solution 2
 
-### 13.3 Risques spécifiques solution 2
+- Exigence de **sécurisation nominative** de l'accès au formulaire (lien personnalisé, token expirant).
+- Besoin de **pré-remplissage** et d'une UX plus fluide (réduction des erreurs de saisie).
+- Besoin de **traçabilité forte** des campagnes (qui a reçu, qui a cliqué, qui a soumis).
+- Volonté d'**industrialiser** le dispositif pour d'autres produits (iRE, NVA, NL+) ou d'autres campagnes ultérieures.
+- DataFactory et Sarbacane déjà opérationnels et accessibles côté Comutitres, processus TSA → Comutitres déjà cadré ou en cours de cadrage.
 
-- dépendance à la qualité des listes d'e-mails reçues ;
-- besoin de gouvernance claire sur l'emailing ;
-- gestion des tokens expirés ;
-- blocage global possible en cas d'échec de préparation de campagne.
+### 8.3 Charges et délais à retenir
 
----
+| | Solution 1 | Solution 2 |
+|---|---|---|
+| Charge macro Build Fabrique | **30 – 47 j/h** | **46 – 71 j/h** |
+| Delta charge S2 – S1 | — | **+ ~ 16 – 24 j/h** |
+| Complexité d'intégration | Faible | Modérée à forte |
+| Time-to-market estimé (squad 3 – 4 pers.) | ~ 3 – 4 semaines | ~ 5 – 7 semaines |
 
-## 14. Recommandation
+### 8.4 Recommandation d'architecture commune aux deux scénarios
 
-### 14.1 Recommandation principale
+Quel que soit le choix du comité, il est recommandé de concevoir dès la V1 :
 
-Au regard :
+- un **service RUM isolé** (module NestJS dédié, testé unitairement) ;
+- un **module de génération PDF isolé** ;
+- un **schéma PostgreSQL extensible** (prévoir le champ `token` et la table `form_access_token` même non utilisés en Solution 1) ;
+- une **traçabilité exploitable** (logs FE1382, audit trail).
 
-- du **faible volume** ;
-- de la stack **NestJS / Node.js / PostgreSQL** ;
-- du besoin de mise en œuvre pragmatique ;
-- du maintien d'un processus papier ;
-- et du rapport valeur / complexité,
-
-la **Solution 1** apparaît comme la solution la plus pertinente pour une première mise en œuvre.
-
-### 14.2 Justification
-
-La solution 1 présente plusieurs avantages dans ce contexte :
-
-- architecture plus simple ;
-- moins de dépendances externes ;
-- meilleure rapidité de mise en œuvre ;
-- charge projet maîtrisée ;
-- adéquation suffisante à un faible nombre d'utilisateurs.
-
-La solution 2 est plus robuste d'un point de vue traçabilité et sécurité d'accès, mais son surcoût et sa complexité sont moins justifiés à ce stade, sauf contrainte forte de personnalisation ou de sécurisation nominative du lien.
-
-### 14.3 Recommandation d'architecture
-
-Il est néanmoins recommandé, même en retenant la solution 1, de concevoir dès la V1 :
-
-- un **service RUM isolé** ;
-- un **module PDF isolé** ;
-- un **schéma PostgreSQL extensible** ;
-- une **traçabilité exploitable**.
-
-Cela permettra une évolution vers la solution 2 ultérieurement sans refonte majeure.
+Ce découpage permet une évolution ultérieure de la Solution 1 vers la Solution 2 sans refonte majeure.
 
 ---
 
-## 15. Conditions qui pourraient faire basculer le choix vers la solution 2
+## 9. Prochaines étapes
 
-La solution 2 deviendrait prioritaire si l'un des éléments suivants se confirme :
-
-- besoin de sécuriser nominativement l'accès au formulaire ;
-- besoin de préremplir certaines données ;
-- besoin de suivre précisément les campagnes d'envoi ;
-- augmentation significative de la volumétrie ;
-- volonté d'industrialiser le dispositif pour d'autres produits similaires.
-
----
-
-## 16. Questions ouvertes à traiter avant engagement final
-
-Les points suivants doivent être clarifiés avant chiffrage définitif :
-
-1. Le lien du formulaire en solution 1 est-il totalement générique ou partiellement personnalisé ?
-2. La photo et le RIB sont-ils réellement gérés en ligne ou uniquement sur support papier ?
-3. Faut-il conserver les brouillons de formulaire ?
-4. Le PDF doit-il être archivé côté Comutitres ?
-5. Existe-t-il un modèle exact du document à générer ?
-6. Quelle est la volumétrie prévisionnelle, même si elle est faible ?
-7. Faut-il un back-office de consultation ?
-8. Quels sont les niveaux d'attente en matière de supervision et de support ?
-9. La RUM consommée mais non finalisée est-elle acceptable métier ?
-10. En solution 2, qui porte précisément la gouvernance emailing ?
+1. Atelier de cadrage fonctionnel (PO + Archi + TSA + IDFM) : valider la liste des champs, règles de gestion RUM produit iRS, processus postal, modèle PDF cible.
+2. Spike technique RUM (1 – 2 j/h) : implémenter et tester l'algorithme modulo 97 sur les exemples fournis pour sécuriser le chiffrage back.
+3. Validation de la disponibilité d'une API TSA pour le contrôle de la référence carte Scol'R (prérequis bloquant Solution 1).
+4. Si Solution 2 envisagée : validation accès DataFactory + contractualisation Sarbacane + cadrage du processus TSA → Comutitres (hors périmètre Fabrique mais bloquant).
+5. ADR tranchant : stack PDF, stack token, hébergement de la page publique.
+6. Lancement DPIA RGPD en parallèle (hors périmètre Fabrique).
+7. Affinage du chiffrage en user-stories Jira une fois la solution retenue par le comité.
 
 ---
 
-## 17. Conclusion
+## 10. Fiche d'architecture cible — Solution 1
 
-Les deux solutions sont techniquement réalisables avec un socle **NestJS / Node.js / PostgreSQL**.
+### 10.1 Vue composants
 
-Dans le contexte exprimé, caractérisé par un **petit nombre d'utilisateurs** et une recherche de pragmatisme, la **solution 1** constitue la meilleure option pour une première implémentation :
+```mermaid
+flowchart LR
+  IDFM["IDFM<br/>(émetteur courriel)"]
+  TSA["TSA<br/>(plateforme envoi mail)"]
+  Client(["Client Scol'R"])
+  Browser["Navigateur<br/>formulaire web"]
+  BO["Lambda / Pod BO<br/>(API formulaire)"]
+  RUMRef[("Référentiel RUM<br/>PostgreSQL")]
+  S3[("Stockage PDF + photos<br/>S3")]
+  Partner["Partenaire<br/>(saisie SIG)"]
+  SIG["SIG"]
 
-- plus rapide ;
-- moins coûteuse ;
-- plus simple à exploiter ;
-- suffisante au regard du besoin initial.
+  IDFM -- "liste clients iRS" --> TSA
+  TSA -- "courriel avec lien générique" --> Client
+  Client -- "clic lien" --> Browser
+  Browser -- "GET formulaire / POST soumission" --> BO
+  BO -- "get/new RUM (indice)" --> RUMRef
+  BO -- "upload photo / PDF" --> S3
+  BO -- "PDF généré" --> Browser
+  Client -- "impression + signature + envoi postal" --> Partner
+  Partner -- "saisie" --> SIG
+```
 
-La **solution 2** reste une cible d'évolution pertinente si le besoin de personnalisation, de sécurisation nominative ou d'industrialisation augmente.
+### 10.2 Briques cibles
 
-Le point technique le plus sensible dans les deux cas demeure la **génération transactionnelle et traçable de la RUM**, qui doit être traitée comme un composant métier critique.
+| Brique | Rôle | Techno cible |
+|---|---|---|
+| Front formulaire | Page publique responsive, validations, upload photo | Angular / Vue / React (à arbitrer selon stack front Comutitres) |
+| API BO | Exposition endpoints formulaire + PDF, orchestration RUM | NestJS (aligné avec SELFY) ou Lambda Node selon hébergement cible |
+| Référentiel RUM | Source de vérité des RUM et de leurs indices | PostgreSQL + migrations gérées par le service |
+| Algorithme RUM | Calcul concaténation + clé modulo 97 | Module TypeScript isolé, testé unitairement |
+| Générateur PDF | Rendu du formulaire pré-rempli + photo + RUM | Puppeteer (HTML → PDF) ou pdfkit |
+| Stockage objet | Photos + PDFs archivés, URL signée | AWS S3 + IAM policy restrictive |
+| CAPTCHA | Protection anti-bot du formulaire public | reCAPTCHA v3 ou hCaptcha |
+| Contrôle réf. Scol'R | Validation de la référence carte saisie | API TSA (à confirmer) ou référentiel importé |
+| Observabilité | Logs FE1382, métriques, alertes | Winston + Datadog (plan logging SELFY) |
+| CI/CD | Build, test, déploiement | GitLab CI + Docker |
 
----
+### 10.3 Flux de données clés
 
-## 18. Synthèse exécutive
+- **Création d'une RUM** : transaction BDD avec verrou sur `(ref_contrat, code_produit)` pour obtenir l'indice suivant, insertion + calcul de la clé modulo 97, retour de la RUM formatée.
+- **Soumission du formulaire** : validation serveur, stockage chiffré des champs sensibles (RIB, e‑mail), photo stockée sur S3, statut `draft → submitted → pdf_generated`.
+- **Génération PDF** : lecture du formulaire + RUM, fusion dans le template, archivage S3, URL signée à courte durée (ex. 15 min).
 
-### Recommandation
-**Retenir la Solution 1 en V1**, avec architecture préparant une évolution future vers la solution 2.
+### 10.4 Modèle de données (extrait)
 
-### Charges macro
-- **Solution 1** : **31 à 48 j.h**
-- **Solution 2** : **46 à 72 j.h**
+```
+Table rum
+- id (PK)
+- rum (unique)
+- ref_contrat (14)
+- code_produit (2)
+- indice (2)
+- cle_modulo97 (2)
+- indicateur_migration (bool)
+- client_ref (nullable)
+- status (enum: reserved, used, cancelled)
+- created_at, used_at
 
-### Décision d'architecture
-- NestJS / Node.js
-- PostgreSQL
-- service RUM dédié
-- génération PDF backend
-- sécurité minimale robuste dès la V1
+Table formulaire_soumission
+- id (PK)
+- rum_id (FK -> rum.id, nullable avant génération PDF)
+- carte_scolr_ref, payeur_nom, payeur_prenom, payeur_email,
+  porteur_nom, porteur_prenom, porteur_date_naissance, porteur_email,
+  niveau_scolaire, etablissement_nom, etablissement_adresse,
+  client_porteur_num (nullable), client_payeur_num (nullable),
+  rib_iban, rib_bic, photo_s3_key, pdf_s3_key,
+  status (enum), created_at, updated_at
+```
 
----
+### 10.5 Sécurité
 
-Document de travail interne — Équipe LA FABRIQUE / Comutitres
+- Endpoints publics protégés par CAPTCHA + rate-limit IP.
+- Contrôle serveur de la référence carte Scol'R avant création de la RUM.
+- Chiffrement au repos : S3 SSE-KMS ; PostgreSQL chiffrement TDE.
+- Chiffrement applicatif des champs RIB (AES-GCM) avec KMS.
+- Journalisation FE1382 sans exposition de secrets (masquage IBAN, e‑mail partiel).
+- Headers HTTP : HSTS, CSP stricte, X-Frame-Options, X-Content-Type-Options.
+
+### 10.6 Observabilité & RUN
+
+- Logs applicatifs Winston au format FE1382 (cf. `docs/plan/plan-logging-unifie-tickets.md`).
+- Métriques clés : taux de soumission, taux de PDF généré, taux d'erreur RUM (clé invalide), latence PDF, erreurs CAPTCHA.
+- Alertes Datadog : 5xx > seuil, échec RUM > seuil, latence PDF p95.
+- Runbook MCO : ré-émission PDF, invalidation RUM, audit RUM.
+
+### 10.7 Déploiement cible
+
+- Environnements : dev, recette, prod.
+- Packaging Docker, pipeline GitLab CI, déploiement Kubernetes (cohérent SELFY) ou Lambda selon arbitrage infra.
+- Secrets gérés via AWS Secrets Manager.
+
