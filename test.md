@@ -1,1 +1,1 @@
-https://platform.claude.com/oauth/authorize?code=true&client_id=9d1c250a-e61b-44d9-88ed-5944d1962f5e&response_type=code&scope=org%3Acreate_api_key+user%3Aprofile&code_challenge=zOC4HWE_7WP0tUU_APRAJdS47dPgDIwGJ3RY32XskIE&code_challenge_method=S256&state=oroXF90Dgu4HDeo2bDwukFDNvWMbUI8gXnzK8FFpbnU&redirect_uri=https%3A%2F%2Fplatform.claude.com%2Foauth%2Fcode%2Fcallback
+Q3eYzmxfK2UDK6bt7ZGMF6FLowD56dHWqbg1u9AhrsSD8pSc#oroXF90Dgu4HDeo2bDwukFDNvWMbUI8gXnzK8FFpbnU
