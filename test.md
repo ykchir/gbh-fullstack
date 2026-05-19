@@ -1,2 +1,6 @@
-[https://litellm-gateway-production-d48b.up.railway.app/v1](https://litellm-gateway-production-d48b.up.railway.app/v1)
-sk-gateway-X9fK28QmL0pRtYvN4sZaB7wHcE1
+Always inspect only the files required for the current task.
+Do not scan the full repository unless explicitly requested.
+Prefer minimal diffs.
+Do not rewrite unchanged code.
+Do not generate long explanations unless asked.
+Before editing, summarize the intended changes briefly.
